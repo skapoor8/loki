@@ -1,0 +1,14 @@
+{
+  "name": "loki",
+  "version": "1.0.0",
+  "description": "A library for building SPAs and micro front-ends",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Siddharth Kapoor",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
