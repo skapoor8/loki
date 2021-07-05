@@ -17,3 +17,4 @@ A humble library for building SPAs, micro front-ends and jquery-ui style plugins
     - call setState on child components
 3. Utility components for working with lists
 4. Some mechanism for observability...
+5. Plugins to add behaviors to components, like draggable?

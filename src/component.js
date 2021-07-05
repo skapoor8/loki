@@ -75,7 +75,7 @@ class Component extends Evented {
 
     render() {
         // returns html
-        return ``;
+        return ejs``;
     }
 
     beforeRender() {}
@@ -84,21 +84,21 @@ class Component extends Evented {
     static style() {
         // return css
         // - scope everything to 
-        return ``;
+        return css``;
     }
 
     static _appendStyles() {
 
     }
 
-    registerEvents() {
+    static registeredEvents() {
         // return array of valid event names
         return [];
     }
 
-    static registerComponents() {
+    static registeredComponents() {
         // return object containing any component that can be initialised in render
-        return {};
+        return [];
     }
 
     static _getRegisteredSelectors() {
@@ -166,17 +166,34 @@ class Component extends Evented {
     }
 
 
+
+
 }
 
 export default Component;
 
 // helpers -----------------------------------------------------------------------------------------
-var 
+function ejs() {}
+function css() {}
+
+function loki() {
+    // split into string + js
+    // eval js
+    // embed anything that produces string or an array of strings (valid xml)
+    // otherwise, see if embedded js needs to be evaluated
+}
 
 function parseElements(el) {
 
 }
 
-function createElement(el) {
+function createElement(parent, type, attr, ...children) {
+    var el;
 
 }
+
+function createHtmlElement(type, attr) {
+
+}
+
+

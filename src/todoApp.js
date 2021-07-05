@@ -7,10 +7,10 @@ class TodoApp extends Component {
     static selector = 'todo-app';
 
     registerComponents() {
-        return {
+        return [
             // TodoIndex,
             // TodoList
-        };
+        ];
     }
 
     registerEvents() {
@@ -18,11 +18,12 @@ class TodoApp extends Component {
     }
 
     render() {
-        var html = '';
-        html += '<h1>Todo App</h1>';
-        // html += '<todo-index></todo-index>';
-        // html += '<todo-list></todo-list>';
-        return html;
+        return /*html*/`
+        <h1 el="title">Todo App</h1>
+        <todo-index el="index" onClick=""></todo-index>
+        <todo-list></todo-list>
+        {this.state.arr.map(a => <todo-item title=""></todo-item>)}
+        `;
     }
 
     style() {
