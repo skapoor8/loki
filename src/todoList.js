@@ -3,7 +3,7 @@ import Component from './component.js';
 class TodoList extends Component {
     static selector = 'todo-list';
     static components = [];
-    static events = [];
+    static events = ['click'];
 
     render() {
         this.state = {
@@ -20,13 +20,26 @@ class TodoList extends Component {
             ]
         }
         return `
-        <h2><%= title %></h2>
-        <ol>
-        <% list.forEach(todo => { %>
-            <li><%= todo.title %><input type="checkbox" /></li>
-        <% }) %>
-        </ol>
+            <h2 onclick="sayWowza"><%= title %></h2>
+            <ol>
+            <% list.forEach(todo => { %>
+                <li><%= todo.title %><input type="checkbox" /></li>
+            <% }) %>
+            </ol>
         `;
+    }
+
+    static style() {
+        return `
+            .classC {
+                position: relative;
+            }
+        `;
+    }
+
+    sayWowza() {
+        console.error('WOWZAA!!');
+        this.dispatchEvent('click');
     }
 }
 

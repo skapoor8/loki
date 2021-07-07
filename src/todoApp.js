@@ -9,21 +9,30 @@ class TodoApp extends Component {
         TodoIndex, 
         TodoList
     ];
-    static events = [];
+    static events = [
+        'click'
+    ];
 
     render() {
         return `
-        <h1 el="title">Todo App</h1>
-        <todo-index el="index"></todo-index>
-        <todo-list></todo-list>
+            <h1 el="title" onclick="sayHi">Todo App</h1>
+            <todo-index el="index"></todo-index>
+            <todo-list onclick="sayHi"></todo-list>
         `;
     }
 
-    style() {
-        return ``;
+    static style() {
+        return `
+            .classA {
+                display: block;
+            }
+        `;
     }
 
     // public API ----------------------------------------------------------------------------------
+    sayHi() {
+        console.warn('HEY THERE!');
+    }
 
     // event handlers ------------------------------------------------------------------------------
 }

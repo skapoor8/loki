@@ -19,12 +19,20 @@ class TodoIndex extends Component {
             ]
         }
         return `
-        <h2>Todo Index</h2>
-        <ol>
-        <% lists.forEach(list => { %>
-            <li><a href="#"><%= list.title %></a></li>
-        <% }) %>
-        </ol>
+            <h2>Todo Index</h2>
+            <ol>
+            <% lists.forEach(list => { %>
+                <li><a href="#"><%= list.title %></a></li>
+            <% }) %>
+            </ol>
+        `;
+    }
+
+    static style() {
+        return `
+            .classB {
+                display: block;
+            }
         `;
     }
 }
