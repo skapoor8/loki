@@ -2,11 +2,12 @@ const http = require('http');
 const path = require('path');
 const express = require('express');
 
-var publicPath = path.join(__dirname, 'src');
 var app = express();
 
-app.use(express.static('src'));
+app.use(express.static(path.join(__dirname, 'src')));
+app.use(express.static(path.join(__dirname, 'node_modules')));
 app.use((req, res) => {
+    console.log('here');
     res.status(404).redirect('/');
 });
 

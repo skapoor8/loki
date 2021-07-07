@@ -11,14 +11,16 @@
  * 1. life cycle methods
  * 2. life cycle events? standard basic events on all components?
  */
+import '/ejs/ejs.min.js';
 
 import Evented from './evented.js';
 
 class Component extends Evented {
     static selector = 'loki-component';
+    static components = [];
+    static events = [];
 
     constructor(opts={}, state={}) {
-        console.log('component constructor called');
         if (opts.selector) {
             super(opts);
             this.container = document.querySelector(opts.selector);
@@ -30,7 +32,7 @@ class Component extends Evented {
             var selector = this.constructor.selector;
             this.container = document.createElement(selector);
         }
-
+        console.log(this.constructor.name, 'constructor called');
         
         this.uid = this.constructor.selector + '-' + Date.now();
         this.state = state;
@@ -47,15 +49,16 @@ class Component extends Evented {
             this.store = null;
         }
 
-        this.container.innerHTML = this.render();
-        if (this.toplevel) {
+        this.container.innerHTML = EJS(this.render(), this.state);
+        // if (this.toplevel) {
 
-        } else {
+        // } else {
 
-        }
+        // }
+        console.log('static test:', this.constructor.components, this.constructor.registeredComponents());
         this._captureElements();
         this._initComponents();
-        this.registerEvents();
+        // this.registerEvents();
         this.addEventListener();
         this.addSubscriptions();
     }
@@ -75,7 +78,7 @@ class Component extends Evented {
 
     render() {
         // returns html
-        return ejs``;
+        return `<h1>Loki Component</h1>`;
     }
 
     beforeRender() {}
@@ -85,10 +88,6 @@ class Component extends Evented {
         // return css
         // - scope everything to 
         return css``;
-    }
-
-    static _appendStyles() {
-
     }
 
     static registeredEvents() {
@@ -103,21 +102,15 @@ class Component extends Evented {
 
     static _getRegisteredSelectors() {
         // get list of custom component selectors
-        var subcomponentSelectors = [];
-        for (var entry in this.registry) {
-            var subcomponentClass = this.registry[entry];
-            subcomponentSelectors.push(subcomponentClass.selector);
-        }
-        return subcomponentSelectors;
+        console.log('constructor = ', this.components, this.registeredComponents());
+        return this.components.map(c => c.selector);
     }
 
     static _getSelectorToComponentMap() {
         var selMap = {};
-        for (var entry in this.registry) {
-            var subcomponentClass = this.registry[entry];
-            var subcomponentSelector = subcomponentClass.selector;
-            selMap[subcomponentSelector] = subcomponentClass;
-        }
+        this.components.forEach(c => {
+            selMap[c.selector] = c;
+        });
         return selMap;
     }
     
@@ -149,10 +142,11 @@ class Component extends Evented {
         // find all containers to render components in
         subcomponentSelectors.forEach(sel => {
             var targets = this.container.querySelectorAll(sel);
+            console.log('Initializing components in', this.constructor.name, ', targets for sel(', sel, ') are', targets);
             for (var i = 0; i < targets.length; i++) {
                 // init components, store them in this.components
                 var selectorClass = selectorToComponentMap[sel];
-                var c = new selectorClass();
+                var c = new selectorClass({domElement: targets[i]});
                 this.components[c.uid] = c;
             }
         });  
@@ -164,17 +158,19 @@ class Component extends Evented {
             c.unmount();
         }
     }
-
-
-
-
 }
 
 export default Component;
 
 // helpers -----------------------------------------------------------------------------------------
-function ejs() {}
-function css() {}
+function EJS(template, data) {
+    template = template.replaceAll('el', 'data-element');
+    console.log('ejs = ', ejs);
+    return ejs.render(template, data);
+}
+function CSS(styleString) {
+
+}
 
 function loki() {
     // split into string + js
