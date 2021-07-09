@@ -6,18 +6,6 @@ class TodoIndex extends Component {
     static events = [];
 
     render() {
-        this.state = {
-            lists: [
-                {
-                    title: 'Reminders',
-                    id: 1
-                },
-                {
-                    title: 'Work',
-                    id: 2
-                }
-            ]
-        }
         return `
             <h2>Todo Index</h2>
             <ol>

@@ -24,19 +24,25 @@ A humble library for building SPAs, micro front-ends and jquery-ui style plugins
 8. Cross browser testing
 9. Ease of importing with node as well as in the browser...!
 10. Support for embedding children inside components via ejs template... rn children are overwritten plain and simple
+11. stores, models, services and routers?
+12. Debugging friendly errors and error messages
+13. Debugging assist - tree vizualizer?
+14. Some unit testing with jest
 
 ## Todo
 1. Scope css x
 2. capture elements and components x
-3. auto add event listeners (still working on components, issues with evented class)
-4. pass state by component attribs
-5. setState and SSR?
-6. lifecycle methods
-7. css exception for same class... todo-app should not be appended by itself
+3. auto add event listeners (still working on components, issues with evented class) x
+4. pass state by component attribs x
+5. setState x and SSR?
+6. lifecycle methods x
+7. css exception for same class... todo-app should not be appended by itself x
 8. Add component.querySelector method to return components instead of dom elements whenever there is a data-component-id attribute present on the elemnt. x
+9. Move to npm module and compile with webpack...
 
 ## Questions
 1. How can we do SSR if render function can call await... maybe an initial state must be provided. Client side vs. ssr modes of rendering?
 2. Should models and stores be a part of this lib, or keep it seperate? Same q for front end router...
 3. Is there a need for mixins? Like draggable and resizable? Maybe later... Starting small is better.
-4. Should events be scoped somehow?
+4. Should events be scoped somehow? 'loki-' for now
+5. component plugins for extending component behavior, like jquery support... is this any different from mixins?

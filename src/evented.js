@@ -18,14 +18,15 @@
 class Evented {
     constructor(opts) {
         if (opts.selector) {
-            this.element = document.querySelector(opts.selector);
+            this.eventTarget = document.querySelector(opts.selector);
         } else if (opts.domElement) {
-            this.element = opts.domElement;
+            this.eventTarget = opts.domElement;
         }
         this.events = [];
         this.listeners = {};
     }
 
+    // public methods ------------------------------------------------------------------------------
     addEventListener(e, callback) {
         if (this.firesEvent(e)) {
             if (this.listeners[e]) {
@@ -33,17 +34,12 @@ class Evented {
             } else {
                 this.listeners[e] = [callback];
             }
-            if (this.element) this.element.addEventListener(e, callback);
+            if (this.eventTarget) this.eventTarget.addEventListener('loki-'+e, callback);
         }
     }
 
     on(e, callback) {
         this.ddEventListener(e, callback);
-    }
-
-    _removeEventListener(e, cb) {
-        if (this.element) this.element.removeEventListener(e, callback);
-        this.listeners[e].splice(this.listeners[e].indexOf(callback),1);
     }
 
     removeEventListener(e, callback) {
@@ -60,46 +56,67 @@ class Evented {
 
     removeEventListeners() {
         this.events.forEach(e => {
-            this.listeners[e] && this.listeners.forEach(cb => {
+            this.listeners[e] && this.listeners[e].forEach(cb => {
                 this._removeEventListener(e, cb);
             });
         });
     }
 
     registerEvent(name) {
-        this.events.push[name];
+        if (!this.firesEvent(name)) {
+            this.events.push(name);
+        }   
     }
 
     firesEvent(name) {
         return this.events.indexOf(name) != -1;
     }
 
-    dispatchEvent(name, payload) {
-        if (this.firesEvent(name)) {
-            if (this.element) {
-                // TODO: deliver payload through dom event
-                this.element.dispatchEvent(new CustomEvent(name, {
+    dispatchEvent(name, payload={}) {
+        console.log('In Evented.dispatchEvent');
+        try {
+            if (this.firesEvent(name)) {
+                if (this.eventTarget) {
+                    // TODO: deliver payload through dom event
+                    var e = new CustomEvent('loki-'+name, {
                         detail: {
                             domEvent: true,
-                            ...payload
+                            ...payload,
+                            targetComponent: this
                         }
-                    }));
-            } else {
-                this.listeners[name] && this.listeners.name.forEach(cb => {
-                    cb({detail: {
-                        domEvent: false,
-                        ...payload
-                    }});
-                });
+                    });
+                    console.log('custom event called on', this.constructor.name, 'is', e);
+                    this.eventTarget.dispatchEvent(e);
+                } else {
+                    console.log('in else');
+                    this.listeners[name] && this.listeners.name.forEach(cb => {
+                        cb({detail: {
+                            domEvent: false,
+                            ...payload,
+                            targetComponent: this
+                        }});
+                    });
+                }
             }
-        }
-        else {
-            throw new Error(`Evented: no event ${name} registered`);
+            else {
+                throw new Error(`Evented: no event ${name} registered`);
+            }
+        } catch(e) {
+            console.error('dispatchEvent failed in Evented');
+            console.error(e);
+            throw(e);
         }
     }
 
     emit(name, payload) {
         this.dispatchEvent(name, payload);
+    }
+    
+
+    // private methods -----------------------------------------------------------------------------
+    _removeEventListener(e, cb) {
+        if (this.eventTarget) this.eventTarget.removeEventListener('loki-'+e, cb);
+        this.listeners[e].splice(this.listeners[e].indexOf(cb),1);
     }
 }
 
