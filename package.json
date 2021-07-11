@@ -1,16 +1,25 @@
 {
   "name": "loki",
-  "version": "1.0.0",
+  "version": "0.5.3",
   "description": "A library for building SPAs and micro front-ends",
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "new": "node scripts/new.js",
+    "build": "node scripts/build.js",
+    "ssr": "node scripts/ssr.js",
+    "serve": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "loki": "bin/cli.js"
   },
   "author": "Siddharth Kapoor",
   "license": "ISC",
   "dependencies": {
+    "commander": "^8.0.0",
     "ejs": "^3.1.6",
+    "esm": "^3.2.25",
     "express": "^4.17.1",
     "lodash-es": "^4.17.21",
     "nodemon": "^2.0.9"

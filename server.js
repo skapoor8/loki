@@ -7,7 +7,7 @@ var app = express();
 app.use(express.static(path.join(__dirname, 'src')));
 app.use(express.static(path.join(__dirname, 'node_modules')));
 app.use((req, res) => {
-    console.log('here');
+    console.log('here!');
     res.status(404).redirect('/');
 });
 
