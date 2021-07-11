@@ -7,7 +7,7 @@ const {Command} = require('commander');
 
 
 var cli = new Command();
-var configPath = path.join(process.cwd(), 'package.json');
+var configPath = path.join(process.cwd(), 'loki.json');
 
 cli.command('new')
     .action(() => require('../scripts/new')());
