@@ -22,7 +22,7 @@ cli.command('serve')
 cli.command('build')
     .action(() => {
         checkConfig(config => {
-            require('../scripts/build.cjs')(config);
+            require('../scripts/build')(config);
         });
     });
 
