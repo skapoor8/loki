@@ -4,8 +4,8 @@
  * Purpose:         Lightweight component class
  */
 
-import '/ejs/ejs.min.js';
-import trimStrart from '/lodash-es/trimStart.js';
+import 'ejs/ejs.min.js';
+import trimStrart from 'lodash-es/trimStart.js';
 
 import Evented from './evented.js';
 

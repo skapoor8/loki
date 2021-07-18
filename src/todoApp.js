@@ -1,9 +1,9 @@
-import Component from './component.js';
+import Loki from 'loki';
 
 import TodoIndex from './todoIndex.js';
 import TodoList from './todoList.js';
 
-class TodoApp extends Component {
+class TodoApp extends Loki.Component {
     static selector = 'todo-app';
     static components = [
         TodoIndex, 

@@ -1,4 +1,4 @@
-import Component from './component';
+import {Component} from 'loki';
 
 class TodoItem extends Component {
     static selector = 'todo-item';

@@ -1,4 +1,4 @@
-import Component from './component.js';
+import {Component} from 'loki';
 
 class TodoList extends Component {
     static selector = 'todo-list';
