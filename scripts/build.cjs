@@ -42,6 +42,9 @@ function buildIndexFile(appName, appPath) {
     template = template.replace(/<APP_NAME>/g, appName);
     template = template.replace(/<APP_PATH>/g, appPath);
 
+    if (!fs.existsSync(path.join(__dirname, '..', 'tmp'))){
+        fs.mkdirSync(path.join(__dirname, '..', 'tmp'));
+    }
     fs.writeFileSync(appIndexPath, template);
     return appIndexPath;
 }
