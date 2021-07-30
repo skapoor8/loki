@@ -1,0 +1,10 @@
+{
+    "project-name": "<APP_NAME>",
+    "js-main": "app.js",
+    "css-main": "app.css",
+    "html-main": "index.html",
+    "mode": "local",
+    "outpath": "",
+    "styles": [],
+    "assets": []
+}
