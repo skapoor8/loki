@@ -9,6 +9,6 @@
     <script type="module" src='/<APP_NAME>.bundle.js'></script>
 </head>
 <body>
-    <<APP_SELECTOR>></<APP_SELECTOR>>
+    <loki-app></loki-app>
 </body>
 </html>

@@ -8,15 +8,15 @@ const express = require('express');
 try {
     var app = express();
     var config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'loki.json')));
-
+    console.log('In server.js, process.cwd() =', process.cwd());
     // if (config.mode == 'local') {
     //     console.log('mode in config is local');
     //     app.use(express.static(path.join(__dirname, 'src')));
     //     app.use('/ejs', express.static(path.join(__dirname, 'node_modules', 'ejs')));
     //     app.use(express.static(path.join(process.cwd(), 'src')));
     // }
-    app.use(express.static(path.join(__dirname, 'src')));
-    app.use(express.static(path.join(process.cwd(), 'dist')));
+    
+    app.use(express.static(path.join(process.cwd(), 'dist', config['project-name'])));
 
     app.use('/', (req, res) => {
         console.log('serving', path.join(process.cwd(), 'src', 'index.html'));
@@ -27,7 +27,7 @@ try {
         res.status(404).redirect('/');
     });
 
-    http.createServer(app).listen(3011);
+    http.createServer(app).listen(3012);
 } catch (e) {
     console.error('No loki config found');
     console.error(e);

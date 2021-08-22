@@ -9,8 +9,8 @@ const {Command} = require('commander');
 var cli = new Command();
 var configPath = path.join(process.cwd(), 'loki.json');
 
-cli.command('new')
-    .action(() => require('../scripts/new')());
+cli.command('new <name>')
+    .action((name) => require('../scripts/new')(name));
 
 cli.command('serve')
     .action(() => {

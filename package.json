@@ -1,8 +1,7 @@
 {
-  "name": "@skapoor8/loki",
-  "scope": "@skapoor8",
+  "name": "loki-js",
   "version": "0.6.4",
-  "description": "A library for building SPAs and micro front-ends",
+  "description": "A humble library for building SPAs and micro front-ends",
   "main": "src/index.js",
   "repository": {
     "type": "git",
