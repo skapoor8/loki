@@ -93,9 +93,11 @@ npx loki serve
 9. Compile to web components
 10. Hot reload
 11. client side routing
+12. Better event handling... (call code from templates)
 
 ## Todo
 1. Get build and serve scripts running [1]
 2. Get new script working [2]
 2. Infer bootstrap component and app selector from js-main
 3. Make store [3]
+4. Event listeners need to accept args/run any code... or do away with it
