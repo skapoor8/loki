@@ -16,13 +16,18 @@ function newLokiApp(appName) {
                             appPath,
                             'loki.json',
                             {
-                                '<APP_NAME>': appName
+                                '<APP_NAME>': appName,
+                                '<APP_SELECTOR>': 'loki-app', 
+                                '<BOOTSTRAP_COMPONENT>': 'App'
                             });
         // build app.js
         generateFromTemplate(path.join(templateDir, 'app.js.template'),
                             path.join(appPath, 'src'),
                             'app.js',
-                            {});
+                            {
+                                '<APP_SELECTOR>': 'loki-app', 
+                                '<BOOTSTRAP_COMPONENT>': 'App'
+                            });
         // build app.css
         generateFromTemplate(path.join(templateDir, 'app.css.template'),
                             path.join(appPath, 'src'),
@@ -34,7 +39,9 @@ function newLokiApp(appName) {
                             path.join(appPath, 'src'),
                             'index.html',
                             {
-                                '<APP_NAME>': appName
+                                '<APP_NAME>': appName,
+                                '<APP_SELECTOR>': 'loki-app', 
+                                '<BOOTSTRAP_COMPONENT>': 'App'
                             });
 
         // build components folder

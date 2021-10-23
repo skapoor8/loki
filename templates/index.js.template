@@ -1,7 +1,7 @@
-import <APP_NAME> from '<APP_PATH>';
+import <BOOTSTRAP_COMPONENT> from '<APP_PATH>';
 
 window.addEventListener('load', function() {
     console.log('Attempting to init <APP_NAME>!');
-    var app = new <APP_NAME>({selector: 'todo-app', toplevel: true});
+    var app = new <BOOTSTRAP_COMPONENT>({selector: '<APP_SELECTOR>', toplevel: true});
     window['<APP_NAME>'] = app;
 });

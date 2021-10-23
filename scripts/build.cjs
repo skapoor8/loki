@@ -13,10 +13,12 @@ function buildLokiApp(config) {
     console.log('loki config:', config);
     var appName = config['project-name'],
         appPath = path.join(process.cwd(), 'src', config['js-main']),
+        appSelector = config['app-selector'],
+        bootstrapComponent = config['bootstrap-component'],
         wpConfig,
         indexPath;
     
-    indexPath = buildIndexFile(appName, appPath);
+    indexPath = buildIndexFile(appName, appPath, appSelector, bootstrapComponent);
     wpConfig = buildWebpackConfig(appName, indexPath);
     console.log('final wpconfig:', wpConfig);
     webpack(wpConfig, (err, stats) => {
@@ -34,13 +36,15 @@ module.exports = buildLokiApp;
 
 // helpers -----------------------------------------------------------------------------------------
 
-function buildIndexFile(appName, appPath) {
+function buildIndexFile(appName, appPath, appSelector, bootstrapComponent) {
     var templatePath = path.join(__dirname, '..', 'templates', 'index.js.template'),
         appIndexPath = path.join(__dirname, '..', 'tmp', appName+'-index.js');
 
     var template = fs.readFileSync(templatePath, 'utf-8');
     template = template.replace(/<APP_NAME>/g, appName);
     template = template.replace(/<APP_PATH>/g, appPath);
+    template = template.replace(/<APP_SELECTOR>/g, appSelector);
+    template = template.replace(/<BOOTSTRAP_COMPONENT>/g, bootstrapComponent);
 
     if (!fs.existsSync(path.join(__dirname, '..', 'tmp'))){
         fs.mkdirSync(path.join(__dirname, '..', 'tmp'));

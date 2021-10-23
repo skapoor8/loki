@@ -1,7 +1,7 @@
 import Loki from 'loki';
 
-class App extends Loki.Component {
-    static selector = 'loki-app';
+class <BOOTSTRAP_COMPONENT> extends Loki.Component {
+    static selector = '<APP_SELECTOR>';
     static components = [];
     static events = [];
 
