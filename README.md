@@ -101,13 +101,11 @@ npx loki serve
 0. Figure out development+testing, and prod work flow -> document it
 1. Get build and serve scripts running [X]
 2. Get new script working [X]
-2. Infer bootstrap component and app selector from js-main 
-3. Make store 
-4. Event listeners need to accept args/run any code... or do away with it
-5. Add models 
-6. Add service -> [Nope] don't need this. Just use objects for single ton services...
-7. Add loki version in files
-8. How will people use loki? install globally?
+3. Event listeners need to accept args/run any code... or do away with it
+4. Make store 
+5. Add service
+6. Add loki version in files
+7. How will people use loki? install globally?
 
 ## Bugs/Issues
 1. Click on child does not trigger click on parent... does this make sense...?
