@@ -105,11 +105,12 @@ npx loki serve
 4. Add updateState and onUpdateState lifecycle methods -> for manually updating html and sub-components...
 4. Make store 
 5. Add service
-6. Add loki version in files
+6. Add loki version in files... how will compatibility work? Maybe don't worry about it
 7. How will people use loki? install globally?
 8. Add generator methods for stores, and services
 9. Watch for changes and re-build
 10. Nice starter project...
+11. add demo dir for forlder...
 
 ## Bugs/Issues
 1. Click on child does not trigger click on parent... does this make sense...?
