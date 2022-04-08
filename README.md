@@ -101,7 +101,8 @@ npx loki serve
 0. Figure out development+testing, and prod work flow -> document it
 1. Get build and serve scripts running [X]
 2. Get new script working [X]
-3. Event listeners need to accept args/run any code... or do away with it
+3. Event listeners need to accept args/run any code... or do away with it 
+4. Add updateState and onUpdateState lifecycle methods -> for manually updating html and sub-components...
 4. Make store 
 5. Add service
 6. Add loki version in files
