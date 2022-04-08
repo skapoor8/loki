@@ -107,6 +107,9 @@ npx loki serve
 5. Add service
 6. Add loki version in files
 7. How will people use loki? install globally?
+8. Add generator methods for stores, and services
+9. Watch for changes and re-build
+10. Nice starter project...
 
 ## Bugs/Issues
 1. Click on child does not trigger click on parent... does this make sense...?
