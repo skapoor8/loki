@@ -1,5 +1,5 @@
 # Loki.js
-A humble library for building SPAs, micro front-ends and jquery-ui style plugins.
+A humble library for building SPAs
 
 ## TOC
 1. Features
@@ -46,11 +46,11 @@ npx loki serve
 ## APIs
 
 ### Components
-1. render()
-2. style()
-3. querySelector()
-4. addEventListeners()
-5. static properties
+1. render() X
+2. style() X
+3. querySelector() X
+4. addEventListeners() X?
+5. static properties 
 6. life cycle methods
 
 ### Models
@@ -73,14 +73,15 @@ npx loki serve
 1. cookie parser
 
 ### CLI
-1. npx loki new [1]
-2. npx loki build [2]
-3. npx loki serve [3]
+1. npx loki new [X]
+2. npx loki build [X]
+3. npx loki serve [X]
 4. npx loki g component <component_name>
 5. npx loki g service <service_name>
 6. npx loki g model <model_name>
 
 ## Future Directions
+0. micro front-ends and jquery-ui style plugins
 1. efficient JSX like templating system
 2. component tree representation for re-rendering
 2. Adding some type of state management that allows updating component props efficiently
@@ -94,10 +95,20 @@ npx loki serve
 10. Hot reload
 11. client side routing
 12. Better event handling... (call code from templates)
+13. modules, and project organization?
 
 ## Todo
-1. Get build and serve scripts running [1]
-2. Get new script working [2]
-2. Infer bootstrap component and app selector from js-main
-3. Make store [3]
+0. Figure out development+testing, and prod work flow -> document it
+1. Get build and serve scripts running [X]
+2. Get new script working [X]
+2. Infer bootstrap component and app selector from js-main 
+3. Make store 
 4. Event listeners need to accept args/run any code... or do away with it
+5. Add models 
+6. Add service -> [Nope] don't need this. Just use objects for single ton services...
+7. Add loki version in files
+8. How will people use loki? install globally?
+
+## Bugs/Issues
+1. Click on child does not trigger click on parent... does this make sense...?
+2. Why is auto-attach event listeners only called in toplevel components?

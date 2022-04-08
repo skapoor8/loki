@@ -39,7 +39,7 @@ class Evented {
     }
 
     on(e, callback) {
-        this.ddEventListener(e, callback);
+        this.addEventListener(e, callback);
     }
 
     removeEventListener(e, callback) {
@@ -81,8 +81,8 @@ class Evented {
                     var e = new CustomEvent('loki-'+name, {
                         detail: {
                             domEvent: true,
+                            targetComponent: this,
                             ...payload,
-                            targetComponent: this
                         }
                     });
                     console.log('custom event called on', this.constructor.name, 'is', e);
@@ -92,8 +92,8 @@ class Evented {
                     this.listeners[name] && this.listeners.name.forEach(cb => {
                         cb({detail: {
                             domEvent: false,
+                            targetComponent: this,
                             ...payload,
-                            targetComponent: this
                         }});
                     });
                 }
