@@ -104,7 +104,6 @@ npx loki serve
 2. Get new script working [X]
 3. Event listeners need to accept args/run any code... or do away with it -> event listeners will accept event for now, no custom args, no free from code. [X]
 4. Add updateState and onUpdateState lifecycle methods -> for manually updating html and sub-components... [X] 
-    - May need utilities to make it easier to handle dealing with attached event handlers, captured elements, mounting and unmounting sub-components, etc.
 5. Make store 
 6. Add service
 7. Add loki version in files... how will compatibility work? Maybe don't worry about it
@@ -112,8 +111,10 @@ npx loki serve
 9. Add generator methods for stores, and services
 10. Watch for changes and re-build
 11. Nice starter project...
-12. add demo dir for folder... X
-13. local and published at the same time -> not possible, but added source maps! X
+12. add demo dir for folder... [X]
+13. local and published at the same time -> not possible, but added source maps! [X]
+14. May need utilities to make it easier to handle dealing with attached event handlers, captured elements, mounting and unmounting sub-components, etc.
+15. reduceState and onReduceState? -> to make updateState more granular
 
 
 ## Bugs/Issues
