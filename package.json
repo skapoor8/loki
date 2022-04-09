@@ -1,6 +1,6 @@
 {
-  "name": "loki-js",
-  "version": "0.6.4",
+  "name": "@skapoor8/loki",
+  "version": "0.6.13",
   "description": "A humble library for building SPAs and micro front-ends",
   "main": "src/index.js",
   "repository": {

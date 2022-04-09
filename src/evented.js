@@ -34,7 +34,8 @@ class Evented {
             } else {
                 this.listeners[e] = [callback];
             }
-            if (this.eventTarget) this.eventTarget.addEventListener('loki-'+e, callback);
+        } else {
+            if (this.eventTarget) this.eventTarget.addEventListener(e, callback);
         }
     }
 

@@ -39,13 +39,14 @@ class Component extends Evented {
 
         var {html, states} = EJS(this.render(), this.state);
         this.container.innerHTML = html;
-        this._captureElements();
         this._initComponents(states);
+        this._captureElements();
         this._registerEvents();
         if (opts.toplevel) {
             this._autoAttachEventListeners();
         }
         this.addEventListener();
+        this.onInit();
     }
 
     // overridable methods -------------------------------------------------------------------------
@@ -60,10 +61,11 @@ class Component extends Evented {
     addEventListeners() {}
 
     // lifecycle methods ---------------------------------------------------------------------------
-    componentDidMount() {}
-    componentWillUnmount() {}
-    beforeUpdate() {}
-    afterUpdate() {}
+    onInit() {}
+    beforeDestroy() {}
+    onDestroy() {}
+    onSetState() {}
+    onUpdateState() {}
 
     // public methods ------------------------------------------------------------------------------
     static init(opts) {
@@ -72,7 +74,7 @@ class Component extends Evented {
 
     setState(newState) {
         if (newState && typeof newState == 'object') {
-            this.beforeUpdate();
+            // this.beforeUpdate();
             this.unmount();
             this.state = {
                 ...this.state,
@@ -80,15 +82,24 @@ class Component extends Evented {
             }
             var {html, states} = EJS(this.render(), this.state);
             this.container.innerHTML = html;
-            this._captureElements();
             this._initComponents(states);
+            this._captureElements();
             this._registerEvents();
             if (this.toplevel) {
                 this._autoAttachEventListeners();
             }
             this.addEventListener();
-            this.afterUpdate();
+            // this.afterUpdate();
+            this.onSetState();
         }
+    }
+
+    updateState(newState) {
+        this.state = {
+            ...this.state,
+            ...newState
+        };
+        this.onUpdateState();
     }
 
     querySelector(sel) {
@@ -101,9 +112,11 @@ class Component extends Evented {
     }
 
     unmount() {
+        this.beforeDestroy();
         this.removeEventListeners();
         this._releaseElements();
         this._unmountComponents();
+        this.onDestroy();
     }
     
     // private methods -----------------------------------------------------------------------------
@@ -179,6 +192,7 @@ class Component extends Evented {
     }
  
     _captureElements() {
+        this.elements = [];
         var elements = this.container.querySelectorAll('[data-element]');
         var selMap = this.constructor._getSelectorToComponentMap();
         for (var i = 0; i < elements.length; i++) {
@@ -187,7 +201,9 @@ class Component extends Evented {
             if (!this.constructor._getRegisteredSelectors().includes(el.tagName.toLowerCase())) {
                 // console.log('element added');
                 this.elements[el.dataset.element] = el;
-            }  
+            } else {
+                this.elements[el.dataset.element] = this.components[el.dataset.componentId];
+            }
         }
     }
 

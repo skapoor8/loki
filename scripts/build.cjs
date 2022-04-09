@@ -60,6 +60,7 @@ function buildWebpackConfig(appName, indexPath) {
             filename: appName ? appName+'.bundle.js' : 'lokiApp.bundle.js',
             path: path.join(process.cwd(), 'dist', appName)
         }, 
+        devtool: 'inline-source-map',
         resolve: {
             alias: {
                 loki: path.join(__dirname, '..', 'src' )

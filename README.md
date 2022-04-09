@@ -84,33 +84,37 @@ npx loki serve
 0. micro front-ends and jquery-ui style plugins
 1. efficient JSX like templating system
 2. component tree representation for re-rendering
-2. Adding some type of state management that allows updating component props efficiently
-3. Adding Sass/Less support
-4. Component templating
-5. SSR
-6. Express integration
-7. Better bundling with webpack
-8. Cross browser support
-9. Compile to web components
-10. Hot reload
-11. client side routing
-12. Better event handling... (call code from templates)
-13. modules, and project organization?
+3. Adding some type of state management that allows updating component props efficiently
+4. Run any code in event handlers, as opposed to just handlers that recieve events
+5. Adding Sass/Less support
+6. Component templating
+7. SSR
+8. Express integration
+9. Better bundling with webpack
+10. Cross browser support
+11. Compile to web components
+12. Hot reload
+13. client side routing
+14. Better event handling... (call code from templates)
+15. modules, and project organization?
 
 ## Todo
 0. Figure out development+testing, and prod work flow -> document it
 1. Get build and serve scripts running [X]
 2. Get new script working [X]
-3. Event listeners need to accept args/run any code... or do away with it 
-4. Add updateState and onUpdateState lifecycle methods -> for manually updating html and sub-components...
-4. Make store 
-5. Add service
-6. Add loki version in files... how will compatibility work? Maybe don't worry about it
-7. How will people use loki? install globally?
-8. Add generator methods for stores, and services
-9. Watch for changes and re-build
-10. Nice starter project...
-11. add demo dir for forlder...
+3. Event listeners need to accept args/run any code... or do away with it -> event listeners will accept event for now, no custom args, no free from code. [X]
+4. Add updateState and onUpdateState lifecycle methods -> for manually updating html and sub-components... [X] 
+    - May need utilities to make it easier to handle dealing with attached event handlers, captured elements, mounting and unmounting sub-components, etc.
+5. Make store 
+6. Add service
+7. Add loki version in files... how will compatibility work? Maybe don't worry about it
+8. How will people use loki? install globally?
+9. Add generator methods for stores, and services
+10. Watch for changes and re-build
+11. Nice starter project...
+12. add demo dir for folder... X
+13. local and published at the same time -> not possible, but added source maps! X
+
 
 ## Bugs/Issues
 1. Click on child does not trigger click on parent... does this make sense...?

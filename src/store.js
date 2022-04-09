@@ -2,9 +2,9 @@ import Evented from './evented';
 import Subscription from './subscription';
 
 class Store extends Evented {
-    constructor(init) {
+    constructor(data) {
         super();
-        this.payloads = init ? init : {};
+        this.payloads = data ? data : {};
         this.subscriptions = [];
     }
 
@@ -17,8 +17,16 @@ class Store extends Evented {
         return sub;
     }
 
+    sub(e, cb) {
+        return this.subscribe(e, cb);
+    }
+
     value(event) {
         return this.payloads[event];
+    }
+
+    val(e) {
+        return this.value(e);
     }
 
     publish(event, payload) {
@@ -31,7 +39,11 @@ class Store extends Evented {
                 ...payload
             }
         )
-    }    
+    }  
+    
+    pub(e, payload) {
+        this.publish(e, payload);
+    }
 }
 
 export default Store;

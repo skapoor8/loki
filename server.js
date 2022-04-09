@@ -17,6 +17,8 @@ try {
     // }
     
     app.use(express.static(path.join(process.cwd(), 'dist', config['project-name'])));
+    // app.use(express.static(path.join(process.cwd(), 'src')));
+    // app.use('@skapoor/loki', express.static(path.join(process.cwd(), 'node_modules', '@skapoor', 'loki')));
 
     app.use('/', (req, res) => {
         console.log('serving', path.join(process.cwd(), 'src', 'index.html'));
