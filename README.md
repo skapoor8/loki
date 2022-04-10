@@ -1,6 +1,6 @@
 # Loki.js
 A humble library for building SPAs
-Notion Project: (Loki)[https://www.notion.so/dustandsepia/Loki-8788e93f626244a39e9c5f44ba1bd7e8]
+Notion Project: [Loki](https://www.notion.so/dustandsepia/Loki-8788e93f626244a39e9c5f44ba1bd7e8)
 
 
 ## Features
