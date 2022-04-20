@@ -9,6 +9,6 @@
   "author": "Siddharth Kapoor",
   "license": "ISC",
   "dependencies": {
-    "@skapoor8/loki": "^0.6.12"
+    "@skapoor8/loki": "file:.."
   }
 }

@@ -266,7 +266,7 @@ function EJS(template, data) {
         stub += 1;
         return replacement;
     });
-    // console.log('states = ', states);
+    console.log('states = ', states);
     return {html: processed, states: states};
 }
 

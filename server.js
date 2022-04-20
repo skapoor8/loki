@@ -2,7 +2,8 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
-
+const watch = require('node-watch');
+const buildLokiApp = require('./scripts/build.cjs');
 
 
 try {
@@ -26,10 +27,25 @@ try {
     });
 
     app.use((req, res) => {
-        res.status(404).redirect('/');
+        res.status(404).redirect('/'); 
     });
 
     http.createServer(app).listen(3012);
+
+    const watcher = watch(
+        [__dirname, process.cwd()], 
+        {
+            recursive: true,
+            filter: f => !/dist\//.test(f) 
+        }
+    );
+
+    watcher.on('change', () => {
+        console.log('SOMETHING CHANGED!!!'); 
+        // buildLokiApp(config);
+    })
+
+
 } catch (e) {
     console.error('No loki config found');
     console.error(e);
