@@ -1,6 +1,6 @@
 {
   "name": "@skapoor8/loki",
-  "version": "0.6.13",
+  "version": "0.6.14",
   "description": "A humble library for building SPAs and micro front-ends",
   "main": "src/index.js",
   "repository": {
@@ -23,11 +23,12 @@
   "dependencies": {
     "commander": "^8.0.0",
     "ejs": "^3.1.6",
-    "webpack": "^5.45.1",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "lodash-es": "^4.17.21",
-    "nodemon": "^2.0.9"
+    "nodemon": "^2.0.9",
+    "semver": "^7.3.7",
+    "webpack": "^5.45.1"
   },
   "devDependencies": {
     "webpack-cli": "^4.7.2"
