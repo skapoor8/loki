@@ -5,7 +5,7 @@
     "bootstrap-component": "App",
     "app-selector": "loki-app",
     "html-main": "index.html",
-    "mode": "local",
+    "mode": "development",
     "outpath": "",
     "styles": [],
     "assets": []

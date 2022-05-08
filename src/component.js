@@ -5,6 +5,7 @@
  */
 
 import 'ejs/ejs.min.js';
+import { cloneDeep } from 'lodash-es';
 import trimStrart from 'lodash-es/trimStart.js';
 
 import Evented from './evented.js';
@@ -64,8 +65,7 @@ class Component extends Evented {
     onInit() {}
     beforeDestroy() {}
     onDestroy() {}
-    onSetState() {}
-    onUpdateState() {}
+    onUpdateState(oldState) {}
 
     // public methods ------------------------------------------------------------------------------
     static init(opts) {
@@ -89,17 +89,16 @@ class Component extends Evented {
                 this._autoAttachEventListeners();
             }
             this.addEventListener();
-            // this.afterUpdate();
-            this.onSetState();
         }
     }
 
     updateState(newState) {
+        const oldState = cloneDeep(this.state);
         this.state = {
             ...this.state,
             ...newState
         };
-        this.onUpdateState();
+        this.onUpdateState(oldState);
     }
 
     querySelector(sel) {

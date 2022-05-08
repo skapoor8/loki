@@ -1,11 +1,16 @@
 import Loki from '@skapoor8/loki';
 
+// components
+import AppHeader from './components/app-header.js';
+import AppPage from './components/app-page.js';
 import TodoIndex from './components/todo-index.js';
 import TodoList from './components/todo-list.js';
 
 class App extends Loki.Component {
     static selector = 'todo-app';
     static components = [
+        AppHeader,
+        AppPage,
         TodoIndex, 
         TodoList
     ];
@@ -60,12 +65,13 @@ class App extends Loki.Component {
             showIndex: true
         }
         return /* html */`
-            <h1 el="title" onclick="sayHi">Todo App</h1>
+            <app-header onclick="sayHi"></app-header>
+            <app-page></app-page>
             <todo-index 
                 el="index" 
                 state="<%= JSON.stringify({lists: lists.map(l => {return {id: l.id, title: l.title};})}) %>">
             </todo-index>
-            <todo-list 
+            <todo-list
                 el="list"
                 state="<%= JSON.stringify(lists[0]) %>" 
                 onclick="sayBye">
@@ -76,9 +82,9 @@ class App extends Loki.Component {
     static style() {
         return /* css */`
             .classA {
-                display: block;
+                display: block; 
             }
-        `;
+        `; 
     }
 
     // public API ----------------------------------------------------------------------------------
@@ -88,7 +94,7 @@ class App extends Loki.Component {
 
     sayBye() {
         console.warn('DASVIDANYA!');
-    }
+    } 
 
     // event handlers ------------------------------------------------------------------------------
 }

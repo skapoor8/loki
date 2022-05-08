@@ -1,10 +1,8 @@
 const path = require('path');
 const fs = require('fs');
 
-console.log('Loki: running script new');
-
 function newLokiApp(appName) {
-    console.log('render a default loki app template, and setup dir structure in', process.cwd());
+    console.log('Creating a new Loki app in', process.cwd());
     var appPath = process.cwd(),
         templateDir = path.join(__dirname, '..', 'templates');
     
@@ -58,7 +56,7 @@ module.exports = newLokiApp;
 
 // -----------------------------------------------------------------------------
 function generateFromTemplate(templatePath, outPath, outfileName, replacements) {
-    console.log('args:', templatePath, outPath, outfileName, replacements);
+    // console.log('args:', templatePath, outPath, outfileName, replacements);
     try {
         var template = fs.readFileSync(templatePath, 'utf-8');
         for (var toReplace in replacements) {
