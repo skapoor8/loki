@@ -41,8 +41,7 @@ const DataStore = new Loki.Store({
         }
       ]
     }
-  ],
-  showIndex: true
+  ]
 });
 
 export default DataStore;

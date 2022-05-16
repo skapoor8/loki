@@ -1,4 +1,4 @@
-import Loki from 'loki';
+import Loki from '@skapoor8/loki';
 
 class TodoIndex extends Loki.Component {
   static selector = 'todo-index';

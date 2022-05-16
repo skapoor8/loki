@@ -1,0 +1,28 @@
+/*
+* fonts
+*/
+
+@font-face {
+  font-family: inter;
+  src: url(/assets/fonts/Inter-Regular.woff);
+}
+
+* {
+  font-family: 'inter';
+}
+
+body {
+  display: block;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+todo-app {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+}

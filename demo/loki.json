@@ -3,7 +3,7 @@
     "js-main": "app.js",
     "css-main": "app.css",
     "bootstrap-component": "App",
-    "app-selector": "loki-app",
+    "app-selector": "todo-app",
     "html-main": "index.html",
     "mode": "development",
     "outpath": "",
