@@ -2,7 +2,7 @@
 * fonts
 */
 
-@font-face {
+/* @font-face {
   font-family: inter;
   src: url(/assets/fonts/Inter-Regular.woff);
 }
@@ -25,4 +25,4 @@ todo-app {
   height: 100vh;
   padding: 0;
   margin: 0;
-}
+} */

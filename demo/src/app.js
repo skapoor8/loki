@@ -3,8 +3,11 @@
 import Loki from '@skapoor8/loki';
 
 // components
-import AppHeader from './components/app-header.js';
-import AppPage from './components/app-page.js';
+import AppHeader from './components/app/app-header.js';
+import AppPage from './components/app/app-page.js';
+
+// styles
+import './styles/styles.css';
 
 class App extends Loki.Component {
   static selector = 'todo-app';
@@ -20,7 +23,7 @@ class App extends Loki.Component {
 
   render() {
     return /* html */`
-      <app-header onclick="sayHi"></app-header>
+      <!-- <app-header onclick="sayHi"></app-header> -->
       <app-page></app-page>
     `;
   }
