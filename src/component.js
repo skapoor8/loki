@@ -9,12 +9,14 @@ import { cloneDeep } from 'lodash-es';
 import trimStrart from 'lodash-es/trimStart.js';
 
 import Evented from './evented.js';
+import DIContainer from './ioc-container.js';
 
 class Component extends Evented {
     static nextUid = 0;
     static selector = 'loki-component';
     static components = [];
     static events = [];
+    static services = {};
 
     constructor(opts={}) {
         if (opts.selector) {
@@ -33,12 +35,19 @@ class Component extends Evented {
         this.state = opts.state ? opts.state : {};
         this.elements = {};
         this.components = {};
+        this.services = {};
+        this.subscriptions = [];
+        this._autoAttachedEventListenerDisposers = [];
         if (opts.toplevel) {
             this.toplevel = opts.toplevel;
             this.constructor._appendStyles({isRoot: true});  
         } 
 
-        var {html, states} = EJS(this.render(), this.state);
+        this._initServices();
+        this.onBeforeInit();
+        var {html, states} = EJS(this.render(), {...this.state, COMPONENT_UID: this.uid});
+        // console.log(`Component ${this.uid}: constructor state: ${JSON.stringify({...this.state, COMPONENT_UID: this.uid})}`);
+        // console.log(`Component ${this.uid}: constructor html: ${html}`);
         this.container.innerHTML = html;
         this._initComponents(states);
         this._captureElements();
@@ -46,7 +55,7 @@ class Component extends Evented {
         if (opts.toplevel) {
             this._autoAttachEventListeners();
         }
-        this.addEventListener();
+        this.addEventListeners();
         this.onInit();
     }
 
@@ -62,34 +71,61 @@ class Component extends Evented {
     addEventListeners() {}
 
     // lifecycle methods ---------------------------------------------------------------------------
+    onBeforeInit() {}
     onInit() {}
-    beforeDestroy() {}
+    onBeforeDestroy() {}
     onDestroy() {}
-    onUpdateState(oldState) {}
+    onUpdateState(oldState, newState) {}
 
     // public methods ------------------------------------------------------------------------------
     static init(opts) {
         return new this.constructor({toplevel: true, ...opts});
     }
 
-    setState(newState) {
+    setState(newState = {}) {
+        // console.error(`Component: ${this.uid}`,'setState called:', newState);
         if (newState && typeof newState == 'object') {
             // this.beforeUpdate();
+            // prevent unsub while rendering by pushing it to the next event cycle
+            setTimeout(() => {
+                this.unmount();
+                this.onBeforeInit();
+                this.state = {
+                    ...this.state,
+                    ...newState
+                };
+                // console.error(`Component ${this.uid}: setState state:`, this.state, this.container);
+                var {html, states} = EJS(this.render(), {...this.state, COMPONENT_UID: this.uid});
+                // console.error(`Component ${this.uid}: setState html:`, html);
+                this.container.innerHTML = html;
+                this._initComponents(states);
+                this._captureElements();
+                this._registerEvents();
+                // if (this.toplevel) {
+                    this._autoAttachEventListeners();
+                // }
+                this.addEventListeners();
+                this.onInit();
+            }, 1);
+        }
+    }
+
+    refresh() {
+        // console.error(`Component ${this.uid}: refresh called!`);
+        setTimeout(() => {
             this.unmount();
-            this.state = {
-                ...this.state,
-                ...newState
-            }
-            var {html, states} = EJS(this.render(), this.state);
+            this.onBeforeInit();
+            var {html, states} = EJS(this.render(), {...this.state, COMPONENT_UID: this.uid});
             this.container.innerHTML = html;
             this._initComponents(states);
             this._captureElements();
             this._registerEvents();
-            if (this.toplevel) {
+            // if (this.toplevel) {
                 this._autoAttachEventListeners();
-            }
-            this.addEventListener();
-        }
+            // }
+            this.addEventListeners();
+            this.onInit();
+        }, 1);
     }
 
     updateState(newState) {
@@ -98,21 +134,29 @@ class Component extends Evented {
             ...this.state,
             ...newState
         };
-        this.onUpdateState(oldState);
+        this.onUpdateState(oldState, this.state);
     }
 
     querySelector(sel) {
         var el = this.container.querySelector(sel);
-        if (el.dataset.componentId) {
+        if (el?.dataset?.componentId) {
             return this.components[el.dataset.componentId];
         } else {
             return el;
         }
     }
 
+    querySelectorAll(sel) {
+        var els = this.container.querySelectorAll(sel);
+        els.forEach((el, i) => {
+            if (el?.dataset?.componentId) els[i] = this.components[el.dataset.componentId];
+        });
+        return els;
+    }
+
     unmount() {
-        this.beforeDestroy();
-        this.removeEventListeners();
+        this.onBeforeDestroy();
+        this._removeEventListeners();
         this._releaseElements();
         this._unmountComponents();
         this.onDestroy();
@@ -165,16 +209,21 @@ class Component extends Evented {
             var ds = JSON.parse(JSON.stringify(node.dataset))
             // console.log('apply: ', node, ds);
             for (var attr in ds) {
-                if (/^on/g.test(attr)) {
-                    var event = attr.replace('on', '').toLowerCase();
+                if (/^eventon/g.test(attr)) {
+                    var event = attr.replace('eventon', '').toLowerCase();
                     // console.log('Attaching function', this[ds[attr]], 'on event', event);
                     if (isComponent) {
-                        // console.log()
                         var componentId = ds.componentId;
                         var component = this.components[componentId];
                         component.addEventListener(event, this[ds[attr]].bind(this));
+                        // if (this.constructor.selector === 'app-page') {
+                        //     console.log(`_autoAttachEventListeners: attaching event "${event}" with cb<${this[ds[attr]]}> to component`, component);
+                        // }
                     } else {
-                        node.addEventListener(event, this[ds[attr]].bind(this))
+                        // if (this.constructor.selector === 'app-search') {
+                        //     console.log(`_autoAttachEventListeners: attaching event "${event}" with cb<${this[ds[attr]]}> to node`, node);
+                        // }
+                        node.addEventListener(event, this[ds[attr]].bind(this));
                     }
                 }
             }
@@ -187,6 +236,37 @@ class Component extends Evented {
         for (var cid in this.components) {
             var c = this.components[cid];
             c._autoAttachEventListeners();
+        }
+    }
+
+    _removeEventListeners() {
+        super.removeEventListeners();
+        var blacklist = this.constructor._getRegisteredSelectors();
+        var apply = (node) => {
+            var isComponent = blacklist.includes(node.tagName.toLowerCase());
+            var ds = JSON.parse(JSON.stringify(node.dataset))
+            // console.log('apply: ', node, ds);
+            for (var attr in ds) {
+                if (/^on/g.test(attr)) {
+                    // var event = attr.replace('on', '').toLowerCase();
+                    // // console.log('Attaching function', this[ds[attr]], 'on event', event);
+                    if (isComponent) {
+                        // console.log()
+                        var componentId = ds.componentId;
+                        var component = this.components[componentId];
+                        component?.removeEventListeners();
+                    }
+                }
+            }
+        }
+        var children = [];
+        for (var i = 0; i < this.container.childNodes.length; i++) {
+            children.push(this.container.childNodes[i]);
+        }
+        inorderWalk(children, apply, blacklist);
+        for (var cid in this.components) {
+            var c = this.components[cid];
+            c._removeEventListeners();
         }
     }
  
@@ -236,9 +316,12 @@ class Component extends Evented {
 
     _unmountComponents() {
         for (var cid in this.components) {
+            // console.error(`Component ${this.uid}: unmounting ${cid}`);
             var c = this.components[cid];
             c.unmount();
             delete this.components[cid];
+            // console.error(`Component ${this.uid}: components after unmounting ${JSON.stringify(this.components)}`);
+
         }
     }
 
@@ -247,25 +330,36 @@ class Component extends Evented {
             this.registerEvent(e);
         });
     }
+
+    _initServices() {
+        for (let key in this.constructor.services) {
+            const serviceClass = this.constructor.services[key];
+            this.services[key] = DIContainer.get(serviceClass);
+        }
+    }
 }
 
 export default Component;
 
 // helpers -----------------------------------------------------------------------------------------
 function EJS(template, data) {
+    // console.error(`Component.EJS: template: ${template} data =>`, data)
     template = template.replaceAll(' el=', ' data-element=');
-    template = template.replaceAll(/\son(\w+)="/g, ' data-on-$1="');
+    template = template.replaceAll(/\s\((\w+)\)="/g, ' data-eventon-$1="');
+    template = template.replaceAll(/\sstate="<%=([\s\S]*?)%>"/g, " state=\"<%= JSON.stringify($1) %>\"");
+    // console.error('template:', template, data);
     var processed = ejs.render(template, data);
+    // console.error('processed:', processed);
     var states = [], stub = 0;
     processed = processed.replaceAll(/\sstate="(.*)"/g, function(match, token) {
         var transformer = document.createElement('div');
+        // console.error('token:', token);
         transformer.innerHTML=token;
         states.push(JSON.parse(transformer.innerText));
         var replacement = ' data-state-stub="'+stub+'"';
         stub += 1;
         return replacement;
     });
-    console.log('states = ', states);
     return {html: processed, states: states};
 }
 

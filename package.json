@@ -1,6 +1,6 @@
 {
   "name": "@skapoor8/loki",
-  "version": "0.6.14",
+  "version": "0.6.15",
   "description": "A humble library for building SPAs and micro front-ends",
   "main": "src/index.js",
   "repository": {
@@ -37,6 +37,8 @@
     "webpack": "^5.45.1"
   },
   "devDependencies": {
+    "css-loader": "^6.7.1",
+    "style-loader": "^3.3.1",
     "webpack-cli": "^4.7.2"
   }
 }

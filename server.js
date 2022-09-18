@@ -14,6 +14,13 @@ try {
     
     // express middleware --------------------------------------------------------------------------
     app.use(express.static(path.join(process.cwd(), 'dist', config['project-name'])));
+    app.use('/styles', express.static(path.join(process.cwd(), 'src', 'styles')));
+    app.use('/assets', express.static(path.join(process.cwd(), 'src', 'assets')));
+    console.error('css-main:', config['css-main']);
+    app.use(`/${config['css-main']}`,(req, res) => {
+        console.error(`hit /${config['css-main']}`);
+        res.sendFile(path.join(process.cwd(), 'src', config['css-main']))
+    });
     app.use('/socket.io.js', express.static(
         path.join(__dirname, 'node_modules', 'socket.io', 'client-dist', 'socket.io.js'))
     );

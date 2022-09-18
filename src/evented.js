@@ -15,28 +15,33 @@
  * 3. scoping and uniqueness...?
  */
 
+import { cloneDeep } from "lodash-es";
+
 class Evented {
     constructor(opts) {
-        if (opts.selector) {
+        if (opts?.selector) {
             this.eventTarget = document.querySelector(opts.selector);
-        } else if (opts.domElement) {
+        } else if (opts?.domElement) {
             this.eventTarget = opts.domElement;
         }
         this.events = [];
         this.listeners = {};
+        this.firing = false;
     }
 
     // public methods ------------------------------------------------------------------------------
     addEventListener(e, callback) {
+        // console.log(`Evented.addEventlistener: e => ${e} cb => ${callback}`);
         if (this.firesEvent(e)) {
+            if (this.eventTarget) {
+                this.eventTarget.addEventListener('loki-'+e, callback)
+            } 
             if (this.listeners[e]) {
                 this.listeners[e].push(callback);  
             } else {
                 this.listeners[e] = [callback];
             }
-        } else {
-            if (this.eventTarget) this.eventTarget.addEventListener(e, callback);
-        }
+        } 
     }
 
     on(e, callback) {
@@ -44,14 +49,22 @@ class Evented {
     }
 
     removeEventListener(e, callback) {
+        if (this.firing) {
+            console.error("DELETING WHILE FIRING!!!!");
+        }
         if (this.firesEvent(e)) {
-            if (this.listeners[e] && this.listeners[e].indexOf[callback] != -1) {
+            // console.error(`attempting to remove e => ${e} cb => ${callback}`, this.listeners[e]?.indexOf(callback), this.listeners[e], callback);
+            if (this.listeners[e] && this.listeners[e].indexOf(callback) != -1) {
                 this._removeEventListener(e, callback);
-            } 
+            } else if (this.eventTarget) {
+                this.eventTarget.removeEventListener(e, callback);
+            } else {
+                // console.error(`Evented: cb not found to remove! e => ${e} cb => ${callback}`);
+            }
         }
     }
 
-    off(e, callback) {s
+    off(e, callback) {
         this.removeEventListener(e, callback);
     }
 
@@ -74,23 +87,22 @@ class Evented {
     }
 
     dispatchEvent(name, payload={}) {
-        console.log('In Evented.dispatchEvent');
         try {
             if (this.firesEvent(name)) {
+                this.firing = true;
                 if (this.eventTarget) {
                     // TODO: deliver payload through dom event
                     var e = new CustomEvent('loki-'+name, {
                         detail: {
                             domEvent: true,
                             targetComponent: this,
-                            ...payload,
+                            data: payload,
                         }
                     });
-                    console.log('custom event called on', this.constructor.name, 'is', e);
+                    // console.log('custom event called on', this.constructor.name, 'is', e);
                     this.eventTarget.dispatchEvent(e);
                 } else {
-                    console.log('in else');
-                    this.listeners[name] && this.listeners.name.forEach(cb => {
+                    this.listeners[name] && this.listeners[name].forEach(cb => {
                         cb({detail: {
                             domEvent: false,
                             targetComponent: this,
@@ -98,6 +110,7 @@ class Evented {
                         }});
                     });
                 }
+                this.firing = false;
             }
             else {
                 throw new Error(`Evented: no event ${name} registered`);
@@ -105,6 +118,7 @@ class Evented {
         } catch(e) {
             console.error('dispatchEvent failed in Evented');
             console.error(e);
+            this.firing = false;
             throw(e);
         }
     }

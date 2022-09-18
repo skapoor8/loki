@@ -1,4 +1,6 @@
 import Evented from './evented';
+import DIContainer from './ioc-container';
+import IocContainer from './ioc-container';
 import SubscriptionManager from './subscription-manager';
 
 /**
@@ -11,14 +13,22 @@ import SubscriptionManager from './subscription-manager';
  */
 
 export default class Service extends Evented {
-    constructor(componentId, store) {
-        this.componentId = componentId;
-        this.sm = new SubscriptionManager(store);
+    static services = {};
+    static events = ['loadSuccess', 'loadFailure'];
+   
+    constructor() {
+        super();
+        // this.sm = new SubscriptionManager(store);
         this.loadSuccess = false;
+        this.services = {};
 
+        this._registerEvents();
+        this._initServices();
+        this.onBeforeLoad()
         this.load()
-        .then(() => {
+        .then(async () => {
             this.loadSuccess = true;
+            await this.onLoad()
             this.dispatchEvent('loadSuccess');
         })
         .catch(e => {
@@ -29,8 +39,32 @@ export default class Service extends Evented {
 
     async load() {}
 
-    clearData() {
-        this.sm.unsubscribeAll();
+    unload() {
+        // this.sm.unsubscribeAll();
+        this.onBeforeUnload();
         this.removeEventListeners();
+        this.onUnload();
+    }
+
+    // lifecycle methods
+
+    onBeforeLoad() {}
+    onLoad() {}
+    onBeforeUnload() {}
+    onUnload() {}
+
+    // helpers
+
+    _registerEvents() {
+        this.constructor.events.forEach(e => {
+            this.registerEvent(e);
+        });
+    }
+
+    _initServices() {
+        for (let key in this.constructor.services) {
+            const serviceClass = this.constructor.services[key];
+            this.services[key] = DIContainer.get(serviceClass);
+        }
     }
 }

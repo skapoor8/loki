@@ -26,7 +26,7 @@ function buildLokiApp(config, callback) {
             if (stats.hasErrors()) console.error(stats.compilation.errors);
         } else {
             console.log('Loki build success\n');
-            callback();
+            if (callback) callback();
         }    
     });
 }
@@ -66,15 +66,21 @@ function buildWebpackConfig(appName, indexPath) {
                 loki: path.join(__dirname, '..', 'src' ),
                 'socket.io': path.join( __dirname, '..', 'node_modules', 'socket.io', 'client-dist')
             }
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.(css)$/,
+                    use: ['style-loader', 'css-loader'],
+                }
+            ]
         }
     };
     return wpConfig;
 }
 
-function buildHTML() {
+function copyHTML() {}
 
-}
+function copyCSS() {}
 
-function bundleCSS() {
-
-}
+function copyAssets() {}
