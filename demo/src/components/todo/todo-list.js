@@ -1,4 +1,6 @@
 import Loki from '@skapoor8/loki';
+import { TodoListPresenter } from '../../services/todo-list.presenter';
+import { UIStore } from '../../stores/ui-store';
 import UiCircleCheckbox from '../ui/ui-circle-checkbox';
 
 class TodoList extends Loki.Component {
@@ -6,36 +8,77 @@ class TodoList extends Loki.Component {
     static components = [
         UiCircleCheckbox
     ];
-    // static events = ['click'];
+    static events = ['click'];
+    static services = {
+        uiStore: UIStore,
+        presenter: TodoListPresenter
+    };
+    subscriptions = [];
 
     render() {
+        const { presenter, uiStore } = this.services;
+
+        this.state = {
+            summary: presenter.getListSummary(),
+            items: uiStore.val('itemSummaries') ?? []
+        }
         return /* html */`
             
             <div class="todolist-summary">
-                <h2 class="todolist-header"><%= title %></h2>
-                <h2 class="todolist-incomplete">42</h2>
+                <h2 class="todolist-header <%= 'text-'+summary?.color %>"><%= summary?.title %></h2>
+                <h2 class="todolist-incomplete <%= 'text-'+summary?.color %>"><%= summary?.numItems ?? 0 %></h2>
             </div>
             <div class="todolist-actions">
-                <span class="todolist-actions-count">0 Completed</span>
+                <span class="todolist-actions-count"># Completed</span>
                 <i class="todolist-actions-separator fa-solid fa-circle"></i>
-                <span class="todolist-actions-item">Show</span>
+                <span class="todolist-actions-item <%= 'text-'+summary?.color %>">Show</span>
 
-                <div class="todolist-actions-add todolist-actions-item">
-                    <span>Add</span>
-                    <i class="fa-solid fa-plus"></i>
+                <div class="todolist-actions-add todolist-actions-item" (click)="handleClickAdd">
+                    <span class="<%= 'text-'+summary?.color %>">Add</span>
+                    <i class="fa-solid fa-plus <%= 'text-'+summary?.color %>"></i>
                 </div>
                 
             </div>
+            
             <div class="todolist-body">
-                <% todoItems.forEach((todo, i) => { %>
-                    <!-- <div class="todolist-item">
-                        <input type="checkbox" onclick="sayWowza" /> <%= todo.title %>                
-                    </div> -->
-                    <div class="todolist-item">
-                        <ui-circle-checkbox></ui-circle-checkbox>
-                        <span class="todolist-item-label"><%= todo.title %> </span>
-                    </div>
-                <% }) %>
+                <% if (items) { %>
+                    <% items.forEach((todo, i) => { %>
+                        <div class="todolist-item-scroll-container">
+                        <div class="todolist-item-container">
+                            <div class="todolist-item">
+                                <ui-circle-checkbox 
+                                    state="<%= {
+                                        color: summary.color,
+                                        checked: todo.done
+                                    } %>"
+                                    data-todo-id="<%= todo.id %>"
+                                    (checked)="handleTodoCheckedChange"
+                                >
+                                </ui-circle-checkbox>
+                                <div class="todolist-item-input-container">
+                                    <input type="text" 
+                                        id="todolist-item-input-<%= todo.id %>"
+                                        value="<%= todo.title %>"
+                                        class="todolist-item-input" 
+                                        style="width: <%= (todo.title?.length + 1)*8 %>px; height: auto; overflow: auto;"
+                                        data-todo-id="<%= todo.id %>"
+                                        onkeypress="this.style.width = ((this.value.length + 2) * 8) + 'px';"
+                                        (change)="handleTodoTitleChange"
+                                        (keydown)="handleKeyPress"
+                                        />
+                                </div>
+                            </div>
+                            <div 
+                                class="todolist-item-delete" 
+                                data-todo-id="<%= todo.id %>"
+                                (click)="handleTodoDelete">
+                                <i class="far fa-trash-can"></i>
+                                <span>Delete</span>
+                            </div>
+                        </div>
+                        </div>
+                    <% }) %>
+                <% } %>
             </div>
         `;
     }
@@ -47,6 +90,8 @@ class TodoList extends Loki.Component {
                 flex-direction: column;
                 width: 100%;
                 height: 100%;
+                max-width: 100%;
+                max-height: 100%;
             }
 
             .todolist-summary {
@@ -69,14 +114,15 @@ class TodoList extends Loki.Component {
 
             .todolist-body {
                 flex-grow: 1;
-                padding: 0 1rem;
+                padding: 0;
+                max-width: 100%;
+                overflow-x: hidden;
             }
 
             .todolist-actions {
                 display: flex;
                 flex-direction: row;
-                margin: 0.25rem 1rem;
-                margin-top: 0;
+                margin: 0 1rem;
                 padding-bottom: 0.5rem;
                 align-items: center;
                 border-bottom: 1px solid var(--gray-l);
@@ -92,7 +138,6 @@ class TodoList extends Loki.Component {
             }
 
             .todolist-actions .todolist-actions-item {
-                color: var(--blue);
                 cursor: pointer;
             }
 
@@ -107,10 +152,28 @@ class TodoList extends Loki.Component {
                 margin-left: 0.25rem;
             }
 
+            .todolist-body .todolist-item-scroll-container {
+                display: block;
+                height: 2.5rem;
+                overflow-y: hidden;
+            }
+
+            .todolist-body .todolist-item-container {
+                display: block;
+                height: 2.5rem;
+                overflow-x: scroll;
+                overflow-y: hidden;
+                white-space: nowrap;
+                padding-bottom: 18px;
+                box-sizing: content-box;
+            }
+
             .todolist-body .todolist-item {
-                display: flex;
+                display: inline-flex;
                 flex-direction: row;
-                align-items: start;
+                align-items: center;
+                width: 100%;
+                padding-left: 1rem;
             }
 
             .todolist-body .todolist-item ui-circle-checkbox {
@@ -124,14 +187,145 @@ class TodoList extends Loki.Component {
                 border-bottom: 1px solid var(--gray-l);
             }
 
+            .todolist-body .todolist-item .todolist-item-input-container {
+                flex-grow: 1;
+                padding: 0.6rem 0 0.5rem 0;
+                margin-right: 2rem;
+                border: none;
+                border-bottom: 1px solid var(--gray-l);
+            }
+
+            .todolist-body .todolist-item .todolist-item-input {
+                max-width: 100%;
+                border: none;
+            }
+
+            .todolist-body .todolist-item .todolist-item-input:focus-visible {
+                outline: none;
+            }
+
+            .todolist-body .todolist-item-container .todolist-item-delete {
+                display: inline-flex;
+                flex-direction: row;
+                align-items: center;
+                width: 80px;
+                height: 100%;
+                margin-left: -1rem;
+                vertical-align: top;
+                background: var(--red);
+                color: var(--white);
+                justify-content: center;
+                cursor: pointer;
+            }
+
+            .todolist-body .todolist-item-container .todolist-item-delete i {
+                margin-right: 5px;
+                pointer-events: none;
+            }
+
+            .todolist-body .todolist-item-container .todolist-item-delete span {
+                pointer-events: none;
+            }
+
             
         `;
     }
+
+    onInit() {
+        // console.log('TodoList.init: state =>', this.state);
+        const { uiStore } = this.services;
+
+        this.subscriptions = [];
+        this.subscriptions.push(
+            uiStore.sub('selectedListSummary', summary => this.setState({summary})),
+            uiStore.sub('itemSummaries', items => this.setState({items})),
+            uiStore.sub('addedItemId', id => this.activateListItem(id))
+        );
+    }
+
+    onDestroy() {
+        this.subscriptions?.forEach(sub => sub.unsubscribe());
+    }
+
+
+    // api ---------------------------------------------------------------------
+
+    activateListItem(itemId) {
+        // console.log('activateId:', itemId);
+        if (itemId) {
+            const sel = '#todolist-item-input-'+itemId;
+            // console.log('sel:', sel);
+            const input = this.querySelector(sel);
+            // console.error('input:', input)
+            input?.focus();
+        }
+    }
+
+    deactivateListItem(itemId) {
+        console.log('deactivateId:', itemId);
+        if (itemId) {
+            const sel = '#todolist-item-input-'+itemId;
+            // console.log('sel:', sel);
+            const input = this.querySelector(sel);
+            // console.error('input:', input)
+            input?.blur();
+        }
+    }
+
 
     sayWowza(e) {
         console.error('e:', e);
         console.error('WOWZAA!!');
         e.stopPropagation();
+    }
+
+    // event handlers ----------------------------------------------------------
+
+    async handleClickAdd() {
+        console.error('Adding item');
+        await this.services.presenter.addItem();
+    }
+
+    async handleTodoTitleChange(e) {
+        const {presenter} = this.services;
+        console.log('handleTodoTitleChange:', e);
+
+        const itemId = parseInt(e.target.dataset.todoId);
+        await presenter.updateTodoItem(itemId, {title: e.target.value})
+    }
+
+    async handleTodoCheckedChange(e) {
+        const {presenter} = this.services;
+
+        console.log('handleTodoCheckedChange', e);
+        const todoId = parseInt(e.target.dataset.todoId);
+        const checkedVal = e.detail.data;
+        console.log('checkedVal', checkedVal)
+        await presenter.updateTodoItem(todoId, {done: checkedVal});
+    }
+
+    async handleTodoDelete(e) {
+        const {presenter} = this.services;
+
+        console.log('handleTodoDelete', e, e.target, e.target.dataset.todoId);
+        const todoId = parseInt(e.target.dataset.todoId);
+        await presenter.deleteTodoItem(todoId);
+    }
+
+    handleKeyPress(e) {
+        console.log('TodoList.handleKeyPress:', e);
+        const key = e.key;
+        const itemId = e.target.dataset.todoId;
+        switch(key) {
+            case 'Enter':
+                break;
+            case 'Escape':
+                console.log('here!')
+                if (itemId) this.deactivateListItem(itemId);
+                break;
+            default:
+                break;
+        }
     }
 }
 

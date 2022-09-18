@@ -5,6 +5,9 @@ import Loki from '@skapoor8/loki';
 // components
 import AppHeader from './components/app/app-header.js';
 import AppPage from './components/app/app-page.js';
+import { TodoIndexPresenter } from './services/todo-index.presenter.js';
+import { TodoListPresenter } from './services/todo-list.presenter.js';
+import { TodoService } from './services/todo.service.js';
 
 // styles
 import './styles/styles.css';
@@ -17,6 +20,11 @@ class App extends Loki.Component {
   ];
   static events = [
     'click'
+  ];
+  static services = [
+    TodoService,
+    TodoIndexPresenter,
+    TodoListPresenter
   ];
 
   subscriptions = [];
@@ -46,7 +54,9 @@ class App extends Loki.Component {
   }
 
   // lifecycle hooks -----------------------------------------------------------------------------
-  
+  onInit() {
+    console.error('App:', this);
+  }
 
   // public API ----------------------------------------------------------------------------------
   sayHi() {

@@ -1,8 +1,10 @@
 import Loki from '@skapoor8/loki';
-import DataStore from '../../stores/data-store';
+import { DataStore } from '../../stores/data-store';
 import AppSearch from './app-search';
 import TodoIndex from '../todo/todo-index';
 import TodoList from '../todo/todo-list';
+import { TodoService } from '../../services/todo.service';
+import { UIStore } from '../../stores/ui-store';
 
 class AppPage extends Loki.Component {
   static selector = 'app-page';
@@ -10,38 +12,28 @@ class AppPage extends Loki.Component {
     AppSearch,
     TodoIndex, 
     TodoList,
-];
+  ];
+  static services = {
+    dataStore: DataStore,
+    uiStore: UIStore,
+    todoService: TodoService
+  };
 
   render() {
-    this.state = {
-      ...this.state,
-      lists: DataStore.val('lists'),
-      showIndex: true
-    };
-
     return /* html */`
       <div class="apppage-columnleft surface-a">
-        <app-search></app-search>
-        <% if (lists && lists.length > 0) { %>
-          <todo-index 
-            el="index" 
-            state="<%= {lists: lists.map(l => {return {id: l.id, title: l.title};})} %>">
-          </todo-index>
-        <% } %>
+        <app-search (change)="onSearch"></app-search>
+        <todo-index el="index"></todo-index>
         <div class="apppage-columnleft-addlistbutton">
           <i class="fa-solid fa-circle-plus"></i>
-          <span>Add List</span>
+          <span onclick="sayBye">Add List</span>
         </div>
       </div>
-      <div class="apppage-columnright">
-        <% if (lists && lists.length > 0) { %>
-          <todo-list
-            el="list"
-            state="<%= lists[0] %>" 
-            onclick="sayBye">
-          </todo-list>
-        <% } %>
-      </div>  
+      <% if (selectedId) { %>
+        <div class="apppage-columnright">
+          <todo-list el="list"></todo-list>
+        </div>
+      <% } %>  
     `;
   }
 
@@ -72,17 +64,32 @@ class AppPage extends Loki.Component {
           display: flex;
           flex-direction: column;
           flex-grow: 1;
+          flex-basis: 80%;
+          max-width: 80vw;
+          min-width: 1px;
         }
       `;
   }
 
   // lifecycle hooks -----------------------------------------------------------------------------
 
+ 
+  onBeforeInit() {
+    this.state = {
+      ...this.state,
+      selectedId: null,
+      showIndex: true
+    };
+  }
+
   onInit() {
+    
+    // console.log('AppPage: this =', this);
     this.subscriptions = [];
-        this.subscriptions.push(
-            DataStore.sub('lists', lists => this.setState({lists})),
-        );
+    this.subscriptions.push(
+      this.services.uiStore.sub('selectedListId', id => this.setState({selectedId: id}))
+    );
+    // this.services.todoService.exampleServiceMethod();
   }
 
   onDestroy() {
@@ -92,8 +99,12 @@ class AppPage extends Loki.Component {
   // api
 
   sayBye() {
-    console.warn('DASVIDANYA!');
+    console.warn('AppPage: DASVIDANYA!');
   } 
+
+  onSearch(changeEvent) {
+    console.log('AppPage: searched ', changeEvent.detail.data);
+  }
 }
 
 export default AppPage;

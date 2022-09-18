@@ -5,7 +5,7 @@ class TodoListIcon extends Loki.Component {
 
     render() {
         return /* html */`
-          <span class="todolisticon-container">
+          <span class="todolisticon-container <%= 'bg-'+color %>">
             <i class="todolisticon-icon fa-solid fa-list-ul"></i>
           </span>
         `;
@@ -24,7 +24,6 @@ class TodoListIcon extends Loki.Component {
             height: 2rem;
             width: 2rem;
             border-radius: 1rem;
-            background-color: var(--blue)
           }
 
           .todolisticon-icon {

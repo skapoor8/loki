@@ -3,9 +3,19 @@ import Loki from '@skapoor8/loki';
 class UiCircleCheckbox extends Loki.Component {
     static selector = 'ui-circle-checkbox';
 
+    static events = [
+        'checked'
+    ];
+
     render() {
+        this.container.style.setProperty('--cb-color', 'var(--'+this.state.color+')')
         return /* html */`
-            <input type="checkbox" id="<%= 'cbx-'+COMPONENT_UID %>">
+            <input 
+                type="checkbox" 
+                id="<%= 'cbx-'+COMPONENT_UID %>"
+                <%= checked ? 'checked' : '' %>
+                (change)="handleCheckboxChange"
+                >
             <label for="<%= 'cbx-'+COMPONENT_UID %>"></label>
         `;
     }
@@ -35,7 +45,7 @@ class UiCircleCheckbox extends Loki.Component {
           }
 
           input[type="checkbox"]:hover + label:hover {
-              color: var(--blue);
+              color: var(--cb-color);
           }
 
           input[type="checkbox"]:hover + label:before {
@@ -43,7 +53,7 @@ class UiCircleCheckbox extends Loki.Component {
               width: 1.2em;
               height: 1.2em;
               border: 2px solid #fff;
-              background: var(--blue);
+              /* background: var(--cb-color); */
               box-shadow: 0 0 0 1px var(--gray-m);
           }
 
@@ -69,10 +79,14 @@ class UiCircleCheckbox extends Loki.Component {
               border: 2px solid #fff;
               width: 1.2em;
               height: 1.2em;
-              background: var(--blue);
-              box-shadow: 0 0 0 1px var(--blue);
+              background: var(--cb-color);
+              box-shadow: 0 0 0 1px var(--cb-color);
           }
         `;
+    }
+
+    handleCheckboxChange(e) {
+        this.emit('checked', e.target.checked);
     }
 
 }
