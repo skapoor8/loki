@@ -1,7 +1,5 @@
 # Loki.js
 A humble library for building SPAs
-Notion Project: [Loki](https://www.notion.so/dustandsepia/Loki-8788e93f626244a39e9c5f44ba1bd7e8)
-
 
 ## Features
 1. Create well-defined interfaces for your components
@@ -221,3 +219,6 @@ To react to updates in store properties, use the sub api.
 skipFirst is a boolean value, which is true if omitted. This means, be default, store subscriptions do not run with an initial value, akin to RxJS subjects. Passing a true value instead of skip first will make the subscription behave like an RxJS Behavior Subject, i.e. the subscription will fire with the properties initial value.
 
 
+## Notion Project
+
+[Loki](https://www.notion.so/dustandsepia/Loki-8788e93f626244a39e9c5f44ba1bd7e8)
