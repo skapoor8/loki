@@ -11,6 +11,7 @@
   --maroon: #FF215F;
   --blue: #106FFC;
   --lightblue: #17A4F4;
+  --g: #70c8fb;
   --green: #00C052;
   --yellow: #FFC523;
   --purple: #504CCE;
@@ -62,6 +63,10 @@
   color: var(--pink);
 }
 
+.text-orange {
+  color: var(--orange);
+}
+
 /* bg colors */
 
 .bg-red {
@@ -98,6 +103,10 @@
 
 .bg-pink {
   background-color: var(--pink);
+}
+
+.bg-orange {
+  background-color: var(--orange);
 }
 
 

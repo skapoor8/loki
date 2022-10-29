@@ -5,9 +5,11 @@ import Loki from '@skapoor8/loki';
 // components
 import AppHeader from './components/app/app-header.js';
 import AppPage from './components/app/app-page.js';
+import UiModal from './components/ui/ui-modal.js';
 import { TodoIndexPresenter } from './services/todo-index.presenter.js';
 import { TodoListPresenter } from './services/todo-list.presenter.js';
 import { TodoService } from './services/todo.service.js';
+import { UIStore } from './stores/ui-store.js';
 
 // styles
 import './styles/styles.css';
@@ -16,16 +18,17 @@ class App extends Loki.Component {
   static selector = 'todo-app';
   static components = [
     AppHeader,
-    AppPage
+    AppPage,
   ];
   static events = [
     'click'
   ];
-  static services = [
-    TodoService,
-    TodoIndexPresenter,
-    TodoListPresenter
-  ];
+  static services = {
+    todoService: TodoService,
+    listPresenter: TodoIndexPresenter,
+    indexPresenter: TodoListPresenter,
+    uiStore: UIStore
+  };
 
   subscriptions = [];
 
@@ -55,19 +58,34 @@ class App extends Loki.Component {
 
   // lifecycle hooks -----------------------------------------------------------------------------
   onInit() {
-    console.error('App:', this);
+    // console.error('App:', this);
+
+    window.addEventListener('resize', this._handleWindowResize.bind(this))
+    setTimeout(() => {
+      this._handleWindowResize.bind(this)()
+    }, 100);
   }
 
   // public API ----------------------------------------------------------------------------------
   sayHi() {
-    console.warn('HEY THERE!');
+    // console.warn('HEY THERE!');
   }
 
   sayBye() {
-    console.warn('DASVIDANYA!');
+    // console.warn('DASVIDANYA!');
   } 
 
   // event handlers ------------------------------------------------------------------------------
+
+  _handleWindowResize(e) {
+    const { uiStore } = this.services;
+    // console.error('window resize:', window.innerWidth);
+    if (window.innerWidth < 600) {
+      uiStore.pub('isResponsive', true);
+    } else {
+      uiStore.pub('isResponsive', false);
+    }
+  }
 }
 
 export default App;

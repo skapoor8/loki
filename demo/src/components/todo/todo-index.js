@@ -23,6 +23,8 @@ class TodoIndex extends Loki.Component {
             <todo-index-list-item 
               state="<%= list %>" 
               (click)="onClickListItem"
+              (contextmenu)="onContextListItem"
+              (delete)="onDeleteList"
               >
             </todo-index-list-item>
           <% }) %>
@@ -59,14 +61,15 @@ class TodoIndex extends Loki.Component {
 
     this.subscriptions = []
     this.subscriptions.push(
-      uiStore.sub('listSummaries', lists => this.setState({lists}))
+      uiStore.sub('listSummaries', lists => this.setState({lists})),
     );
 
     // auto select first list
     const selectedId = uiStore.val('selectedListId');
-    if (!selectedId) {
+    const isResponsive = uiStore.val('isResponsive');
+    if (!selectedId && !isResponsive) {
       const summaries = uiStore.val('listSummaries');
-      presenter.selectList(summaries[0]?.id);
+      if (summaries?.length > 0) presenter.selectList(summaries[0]?.id);
     }
   }
 
@@ -77,8 +80,27 @@ class TodoIndex extends Loki.Component {
 
   onClickListItem(e) {
     const { presenter } = this.services;
-    console.log('TodoIndex.onClickListItem =', e);
     presenter.selectList(parseInt(e.detail.data.id));
+  }
+
+  async onContextListItem(e) {
+    const { presenter } = this.services;
+    const listId = e.detail?.data?.id;
+    if (listId) {
+      await presenter.openEditModal(listId);
+    }
+      
+
+    e.preventDefault();
+    e.stopPropagation();
+    // presenter.selectList(parseInt(e.detail.data.id));
+
+  }
+
+  async onDeleteList(e) {
+    const { presenter } = this.services;
+    const listId = e.detail.data.id
+    await presenter.deleteList(listId);
   }
 }
 

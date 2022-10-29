@@ -10,22 +10,22 @@ export class TodoService extends Loki.Service {
   };
 
   async onLoad() {
-    console.error('TodoService.onLoad');
+    // console.error('TodoService.onLoad');
     this.db = new Dexie('LokiRemindersData');
     this._initSchema();
     await this._loadFromIndexedDB();
   }
 
   onUnload() {
-    console.error('TodoService.onUnload');
+    // console.error('TodoService.onUnload');
   }
 
   exampleServiceMethod() {
-    console.error('Called exampleServiceMethod!');
+    // console.error('Called exampleServiceMethod!');
   }
 
-  async getListById() {
-
+  async getListById(id) {
+    return await this.db.TodoLists.get({id});
   }
 
   /**
@@ -44,13 +44,14 @@ export class TodoService extends Loki.Service {
    * @param {*} color 
    */
   async createList(title, color) {
-    await this.db.TodoLists.add({
+    const createdId = await this.db.TodoLists.add({
       documentType: 'TodoList',
       title,
       color,
       items: []
     });
     await this.getLists();
+    return createdId;
   }
 
   async deleteList(id) {
@@ -58,10 +59,11 @@ export class TodoService extends Loki.Service {
     await this.getLists();
   }
 
-  async updateListTitle(id, newTitle) {
+  async updateList(id, newTitle, newColor) {
     await this.db.TodoLists.put({
       id: id, 
-      title: newTitle
+      title: newTitle,
+      color: newColor
     });
     await this.getLists();
   }
@@ -74,8 +76,7 @@ export class TodoService extends Loki.Service {
 
   async getTodoItems(ids) {
     if (ids?.length > 0) {
-      const items = await this.db.TodoItems.where('id').anyOf(ids).toArray();
-      console.log('fetched items:', items);
+      const items = await this.db.TodoItems.bulkGet(ids);
       this.services.dataStore.pub('items', items);
     } else {
       this.services.dataStore.pub('items', []);
@@ -83,14 +84,17 @@ export class TodoService extends Loki.Service {
   }
 
   async createTodoItem(listId, title, insertAt = -1) {
+    // console.log('insertAt:', insertAt);
     const list = await this.db.TodoLists.get({id: listId});
 
     // add todo item
     const itemId = await this.db.TodoItems.add({
+      documentType: 'TodoItem',
       title,
-      done: false
+      done: false,
+      doneAt: null,
     });
-    console.log('item added:', itemId);
+    // console.log('item added:', itemId);
     
     // add item to list
     if (!list.items?.includes(itemId)) {
@@ -117,8 +121,15 @@ export class TodoService extends Loki.Service {
     const toUpdate = await this.db.TodoItems.get({id});
     if (!toUpdate) throw new Error(`Updating non-existent TodoItem with id ${id}`);
     if (args.title) toUpdate.title = args.title;
-    if (args.done !== undefined) toUpdate.done = args.done;
-    console.log('TodoService.updateTodoItem:', args);
+    if (args.done !== undefined) {
+      toUpdate.done = args.done;
+      if (args.done) {
+        toUpdate.doneAt = Date.now();
+      } else {
+        toUpdate.doneAt = null;
+      }
+    }
+    // console.log('TodoService.updateTodoItem:', args);
     await this.db.TodoItems.put(toUpdate)
   }
 
@@ -127,7 +138,7 @@ export class TodoService extends Loki.Service {
     const list = await this.db.TodoLists.get({id: listId});
     if (!toDel) throw new Error(`Deleting non-existent TodoItem with id ${itemId}`);
 
-    console.log('deleting item', toDel, 'from list', list);
+    // console.log('deleting item', toDel, 'from list', list);
 
     // delete list item
     await this.db.TodoItems.delete(itemId);
@@ -142,6 +153,28 @@ export class TodoService extends Loki.Service {
     await this.getLists();
   }
 
+  async deleteTodoItems(listId, itemIds) {
+    const toDel = await this.db.TodoItems.bulkGet(itemIds);
+    const list = await this.db.TodoLists.get({id: listId});
+    if (!toDel || toDel.length === 0) throw new Error(`Deleting non-existent TodoItems with ids ${JSON.stringify(itemIds)}`);
+
+    // console.log('deleting items', toDel, 'from list', list);
+
+    // delete list item
+    await this.db.TodoItems.bulkDelete(itemIds);
+
+    // remove list items from list
+    itemIds.forEach(itemId => {
+      const foundAt = list.items.indexOf(itemId);
+      list.items.splice(foundAt, 1);
+    })
+    await this.db.TodoLists.put(list);
+
+    // update list and list items in data store
+    await this.getTodoItemsByListId(listId);
+    await this.getLists();
+  }
+
   // helpers
 
   _initSchema() {
@@ -149,12 +182,17 @@ export class TodoService extends Loki.Service {
       TodoLists: '++id, documentType, title, color, *items',
       TodoItems: '++id, documentType, title, done'
     });
+
+    this.db.version(2).stores({
+      TodoLists: '++id, documentType, title, color, *items',
+      TodoItems: '++id, documentType, title, done, doneAt'
+    });
   }
 
   async _loadFromIndexedDB() {
     const {dataStore} = this.services;
     let lists = await this.db.TodoLists.toArray();
-    console.log('lists initial:', lists);
+    // console.log('lists initial:', lists);
 
     if (lists?.length === 0) {
       await this.db.TodoLists.bulkAdd([
@@ -181,7 +219,7 @@ export class TodoService extends Loki.Service {
 
 
     lists = await this.db.TodoLists.toArray();
-    console.log('lists final:', lists);
+    // console.log('lists final:', lists);
 
     dataStore.pub('lists', lists);
 

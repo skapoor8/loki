@@ -20,7 +20,9 @@ class TodoList extends Loki.Component {
 
         this.state = {
             summary: presenter.getListSummary(),
-            items: uiStore.val('itemSummaries') ?? []
+            items: uiStore.val('itemSummaries') ?? [],
+            completed: uiStore.val('completedItemSummaries'),
+            showComplete: uiStore.val('showComplete')
         }
         return /* html */`
             
@@ -29,9 +31,19 @@ class TodoList extends Loki.Component {
                 <h2 class="todolist-incomplete <%= 'text-'+summary?.color %>"><%= summary?.numItems ?? 0 %></h2>
             </div>
             <div class="todolist-actions">
-                <span class="todolist-actions-count"># Completed</span>
+                <span class="todolist-actions-count"><%= summary?.completed ?? 0 %> Completed</span>
                 <i class="todolist-actions-separator fa-solid fa-circle"></i>
-                <span class="todolist-actions-item <%= 'text-'+summary?.color %>">Show</span>
+                <span class="todolist-actions-item <%= 'text-'+summary?.color %>"
+                    (click)="handleToggleShowComplete"
+                    >
+                    <%= showComplete ? 'Hide' : 'Show' %>
+                </span>
+                <i class="todolist-actions-separator fa-solid fa-circle"></i>
+                <span class="todolist-actions-item <%= 'text-'+summary?.color %>"
+                    (click)="handleClearCompletedItems"
+                    >
+                    Clear
+                </span>
 
                 <div class="todolist-actions-add todolist-actions-item" (click)="handleClickAdd">
                     <span class="<%= 'text-'+summary?.color %>">Add</span>
@@ -65,6 +77,47 @@ class TodoList extends Loki.Component {
                                         onkeypress="this.style.width = ((this.value.length + 2) * 8) + 'px';"
                                         (change)="handleTodoTitleChange"
                                         (keydown)="handleKeyPress"
+                                        (focusout)="handleFocusOut"
+                                        />
+                                </div>
+                            </div>
+                            <div 
+                                class="todolist-item-delete" 
+                                data-todo-id="<%= todo.id %>"
+                                (click)="handleTodoDelete">
+                                <i class="far fa-trash-can"></i>
+                                <span>Delete</span>
+                            </div>
+                        </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+
+                <% if (completed && showComplete) { %>
+                    <% completed.forEach((todo, i) => { %>
+                        <div class="todolist-item-scroll-container">
+                        <div class="todolist-item-container">
+                            <div class="todolist-item">
+                                <ui-circle-checkbox 
+                                    state="<%= {
+                                        color: summary.color,
+                                        checked: todo.done
+                                    } %>"
+                                    data-todo-id="<%= todo.id %>"
+                                    (checked)="handleTodoCheckedChange"
+                                >
+                                </ui-circle-checkbox>
+                                <div class="todolist-item-input-container">
+                                    <input type="text" 
+                                        id="todolist-item-input-<%= todo.id %>"
+                                        value="<%= todo.title %>"
+                                        class="todolist-item-input" 
+                                        style="width: <%= (todo.title?.length + 1)*8 %>px; height: auto; overflow: auto;"
+                                        data-todo-id="<%= todo.id %>"
+                                        onkeypress="this.style.width = ((this.value.length + 2) * 8) + 'px';"
+                                        (change)="handleTodoTitleChange"
+                                        (keydown)="handleKeyPress"
+                                        (focusout)="handleFocusOut"
                                         />
                                 </div>
                             </div>
@@ -89,7 +142,7 @@ class TodoList extends Loki.Component {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
-                height: 100%;
+                height: 100vh;
                 max-width: 100%;
                 max-height: 100%;
             }
@@ -239,7 +292,8 @@ class TodoList extends Loki.Component {
         this.subscriptions.push(
             uiStore.sub('selectedListSummary', summary => this.setState({summary})),
             uiStore.sub('itemSummaries', items => this.setState({items})),
-            uiStore.sub('addedItemId', id => this.activateListItem(id))
+            uiStore.sub('addedItemId', id => this.activateListItem(id)),
+            uiStore.sub('showComplete', showComplete => this.setState({showComplete})),
         );
     }
 
@@ -283,7 +337,7 @@ class TodoList extends Loki.Component {
 
     async handleClickAdd() {
         console.error('Adding item');
-        await this.services.presenter.addItem();
+        await this.services.presenter.addTodoItem();
     }
 
     async handleTodoTitleChange(e) {
@@ -302,6 +356,10 @@ class TodoList extends Loki.Component {
         const checkedVal = e.detail.data;
         console.log('checkedVal', checkedVal)
         await presenter.updateTodoItem(todoId, {done: checkedVal});
+        // setTimeout(() => {
+        //     // TODO: causes bug, things appear checked even if they are not
+        //     this.refresh();
+        // }, 5000)
     }
 
     async handleTodoDelete(e) {
@@ -312,20 +370,46 @@ class TodoList extends Loki.Component {
         await presenter.deleteTodoItem(todoId);
     }
 
-    handleKeyPress(e) {
+    async handleKeyPress(e) {
         console.log('TodoList.handleKeyPress:', e);
         const key = e.key;
-        const itemId = e.target.dataset.todoId;
+        const itemId = parseInt(e.target.dataset.todoId);
+        const {presenter} = this.services;
         switch(key) {
             case 'Enter':
+                if (itemId && e.target.value) {
+                    await presenter.addTodoItem(itemId);
+                } else if (itemId && !e.target.value) {
+                    e.target.blur();
+                }
                 break;
             case 'Escape':
-                console.log('here!')
                 if (itemId) this.deactivateListItem(itemId);
                 break;
             default:
                 break;
         }
+    }
+
+    async handleFocusOut(e) {
+        console.log('focusout:', e);
+        const { presenter } = this.services;
+        const itemId = parseInt(e.target.dataset.todoId);
+        const val = e.target.value;
+        if (itemId && !val) {
+            await presenter.deleteTodoItem(itemId);
+        }
+    }
+
+    handleToggleShowComplete() {
+        const { presenter } = this.services;
+        presenter.toggleShowComplete();
+    }
+
+    async handleClearCompletedItems() {
+        const {presenter} = this.services;
+        console.log('Clear completed items');
+        await presenter.deleteCompletedItems();
     }
 }
 
