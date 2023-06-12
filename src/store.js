@@ -29,10 +29,10 @@ class Store extends Service {
         // console.error('sub:', e, cb);
         const sub = this.subscribe(e, cb);
         if (!skipFirst) {
-            if (e==='listSummaries') console.log(1, skipFirst)
+            // if (e==='listSummaries') console.log(1, skipFirst)
             this.pub(e, this.val(e)); // move to parent func
         } else{
-            if (e==='listSummaries') console.log(2)
+            // if (e==='listSummaries') console.log(2)
         }
         return sub;
     }

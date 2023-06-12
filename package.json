@@ -1,6 +1,6 @@
 {
   "name": "@skapoor8/loki",
-  "version": "0.6.15",
+  "version": "0.7.1",
   "description": "A humble library for building SPAs and micro front-ends",
   "main": "src/index.js",
   "repository": {
