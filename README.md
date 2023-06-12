@@ -157,7 +157,7 @@ export class MyList extends Loki.Component {
 }
 ```
 
-### Hook into your component's lifeycycle
+### Hook into your component's lifecycle
 
 Lifecycle methods onBeforeInit, onInit, onBeforeDestroy, onDestroy, and onUpdateState are provided to initialize component data, and register side-effects. For example, onBeforeInit is where initial state of a component should be set.
 
