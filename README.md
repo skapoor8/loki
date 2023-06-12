@@ -6,8 +6,7 @@ A humble library for building SPAs that lets you
 2. Automatically instantiate child components from a parent
 3. Put your html, css and js all in one place
 4. Define events for your loki components
-5. Multiple loki apps on one page!
-6. A handy-dandy cli!
+5. Build and serve with a cli
 
 ## Features
 
@@ -68,7 +67,7 @@ Your app should be live on localhost:3012
 
 ### Create components, and template with EJS (Embedded JavaScript)
 
-Creating a component is as simple as adding a new file. In the render method, use (Embedded JavaScript (EJS))[https://ejs.co/] to embed variables, use if branches and for loops. Choose a component selector using the static selector property on your component.
+Creating a component is as simple as adding a new file. In the render method, use [Embedded JavaScript (EJS)](https://ejs.co/) to embed variables, use if branches and for loops. Choose a component selector using the static selector property on your component.
 
 ```javascript
 // src/example-component.js
@@ -100,9 +99,10 @@ export class MyList extends Loki.Component {
 }
 ```
 
-Now you register your new component in your app, and use its selector in your app component's template.
+Now you can register your new component in your app, and use its selector in your app component's template.
 
 ```javascript
+// src/app.js
 import Loki from "@skapoor8/loki";
 import { ExampleComponent } from "./example-component";
 
@@ -159,7 +159,7 @@ export class MyList extends Loki.Component {
 
 ### Hook into your component's lifycycle
 
-Lifecycle methods onBeforeInit, onInit, onBeforeDestroy, onDestroy, and onUpdateState are provided to initialize component data, and register side effects. For example, onBeforeInit is where initial state of a component should be set.
+Lifecycle methods onBeforeInit, onInit, onBeforeDestroy, onDestroy, and onUpdateState are provided to initialize component data, and register side-effects. For example, onBeforeInit is where initial state of a component should be set.
 
 ```javascript
 ...
@@ -325,7 +325,7 @@ class MyListItem extends Loki.Component {
 
 ### Add styles with css
 
-Use the styles instance method to add styles to your component's template. All css will automatically be prefixed with your component's selector to scope the css properly.
+Use the style static method to add styles to your component's template. All css will automatically be prefixed with your component's selector to scope the css properly.
 
 ```javascript
 export class MyList extends Loki.Component {
@@ -333,7 +333,7 @@ export class MyList extends Loki.Component {
   static components = [MyListItem];
   static events = ["add"];
 
-  styles() {
+  static style() {
     return /* css */ `
       .container {
         width: 100%;
@@ -391,7 +391,7 @@ Loki implements a simple DI system, whereby services that inherit from Loki.Serv
 
 Services implement lifecycle methods onLoad and onUnload to handle any data loading and cleanup. Services also provide a static services property to allow them to inject other services, or data stores.
 
-For example, say we wish to put all our code the interacts with the api layer in a service, we can do so by creating an MyApiService class in our project. We may have an instance function loadList on this class to fetch our list from our api, instead of initiliazing it with meaningless values as we do now. We can now inject this service, and use it as follows:
+For example, say we wish to put all our code the interacts with the api layer in a service. We can do so by creating a MyApiService class in our project. We may have a function loadList on this class to fetch our list from our api, instead of initiliazing it with meaningless values as we do now. We can now inject this service, and use it as follows:
 
 ```javascript
 export class MyList extends Loki.Component {
@@ -400,7 +400,7 @@ export class MyList extends Loki.Component {
   static events = ["add"];
   static services = { api: MyApiService };
 
-  styles() {
+  static style() {
     return /* css */ `
       ...
     `;
@@ -429,6 +429,7 @@ export class MyList extends Loki.Component {
     };
   }
 
+  // api call goes here
   onInit() {
     const { api } = this.services;
     api.loadList().then((data) =>
@@ -471,11 +472,8 @@ export class UIStore extends Loki.Store {
    */
   init() {
     this.payloads = {
-      selectedListId: null,
-      listSummaries: [],
-      selectedListSummary: null,
-      itemSummaries: [],
-      addedItemId: null,
+      lists: [],
+      isLoading: true,
     };
   }
 }
@@ -484,14 +482,14 @@ export class UIStore extends Loki.Store {
 To use a store, inject it in a component or a service. To publish values to a store property, use the pub api.
 
 ```javascript
-myStore.pub("propName", propVal);
+myStore.pub("isLoading", false);
 ```
 
 To react to updates in store properties, use the sub api.
 
 ```javascript
 const sub = myStore.sub(
-  "propName",
+  "isLoading",
   (propVal) => {
     // do something
   },
@@ -503,28 +501,28 @@ const sub = myStore.sub(
 sub.unsubscribe();
 ```
 
-skipFirst is a boolean value, which is true if omitted. This means, be default, store subscriptions do not run with an initial value, akin to RxJS subjects. Passing a true value instead of skip first will make the subscription behave like an RxJS Behavior Subject, i.e. the subscription will fire with the properties initial value.
+skipFirst is a boolean value, which is true if omitted. This means, be default, store subscriptions do not run with an initial value, akin to RxJS subjects. Passing a true value instead of skip first will make the subscription behave like an RxJS Behavior Subject, i.e. the subscription will fire with the property's initial value.
 
 ## Implementation
 
 1. Evented - this is base class utilized by almost all the major pieces of Loki, and provides event handling (adding and removing event listeners)
-1. Component
-   - This is the heart of the library, and provides templating, styling, event handling and dependency inhection in the UI
-   - Templating is implemented using (EJS)[https://ejs.co/]. There is additional pre-processing of EJS templates to support attaching event handlers, initilization of child components, passing of state, etc.
-   - Styling is accomplished by taking all the styles written in a components style method, prefixing them with the component's selector, and adding to top level style tag in the DOM
+2. Component
+   - This is the heart of the library, and provides templating, styling, event handling and dependency inhection
+   - Templating is implemented using [EJS](https://ejs.co/). There is additional pre-processing of EJS templates to support attaching event handlers, initilization of child components, passing of state, etc.
+   - Styling is accomplished by taking all the styles written in a components static style method, prefixing them with the component's selector, and adding them to a top-level style tag in the DOM
    - A setState method is provided which re-renders the entire template, and is therefore inefficient for large projects
    - An updateState method is also provided, which allows using the onUpdateState lifecycle hook to react to more granular state changes (i.e. manually handle template changes). However, the long term goal is to support granular state changes right from the setState method, and without the need for custom handling of templates for these changes.
-1. Services - Primitive dependency injection is implemented using a custom dependency injection container. A global instance of this is shared by a Loki app, and is used to register dependencies, and request instances of them at the component level
-1. DataStore
-   - DataStores inherit from services, and are therefore injectable and utilized via the services api
-   - In addition, they add on to the evented api by adding a current value for each "event" or property, and providing the pub and sub methods, to publish values and subscribe to changes to them
+3. Services - Primitive dependency injection is implemented using a custom dependency injection container. A global instance of this is shared by a Loki app, and is used to register dependencies, and request instances of them at the component level
+4. Store
+   - Stores inherit from services, and are therefore injectable and utilized via the services api
+   - In addition, they add on to the evented api by adding a current value for each "event" or property, and providing pub and sub methods, to publish values and subscribe to changes to them
    - A subscription class is used to wrap and identify subscriptions, to make it possible for clients to unsubscribe
 
 ## Motivation
 
 I believe a great way to understand how something works is to attempt to build a primitive version of it. This is exactly what loki-js is. I love frameworks like Angular and React, and loki-js is an attempt to re-create some of their magic.
 
-While building loki-js, I got to interact first hand with the complexities of maintaining and propagating component states, and the challenges of reactive programming, and gained an appreciation for the functionality provided by many beloved frameworks.
+While building loki-js, I got to interact first-hand with the complexities of maintaining and propagating component states, and the challenges of reactive programming, and gained an appreciation for the functionality provided by many beloved frameworks.
 
 ## Future Directions
 
