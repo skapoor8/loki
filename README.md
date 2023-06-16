@@ -1,5 +1,7 @@
 # Loki.js
 
+![npm (scoped)](https://img.shields.io/npm/v/@skapoor8/loki)
+
 A humble library for building SPAs that lets you
 
 1. Create well-defined interfaces for your components
